@@ -998,7 +998,7 @@ int main(int argc, char *argv[])
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	game = new Game();
-	game->blit3D = new Blit3D(Blit3DWindowModel::BORDERLESSFULLSCREEN_1080P, "Two Players & a Mattress", 1600, 900);
+	game->blit3D = new Blit3D(Blit3DWindowModel::DECORATEDWINDOW_1080P, "Two Players & a Mattress", 1600, 900);
 	game->camera.blit3D = game->blit3D;
 	//set our callback funcs
 	game->blit3D->SetInit(Init);
