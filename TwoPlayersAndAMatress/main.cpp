@@ -13,20 +13,21 @@
 #include "Game.h"
 #include "Camera.h"
 #include "Wallentity.h"
+#include "LevelWinEntity.h"
 
 AngelcodeFont *afont = NULL;
 
 enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER };
 GameState gameState = START;
 
-void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line)
+/*void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line)
 {
 	if(result != FMOD_OK)
 	{
 		std::cout << file << ", line " << line << " - FMOD ERROR:" << result << " - " << FMOD_ErrorString(result) << std::endl;
 		assert("FMOD error" == 0);
 	}
-}
+}*/
 
 #define ERRCHECK(_result) ERRCHECK_fn(_result, __FILE__, __LINE__)
 
@@ -66,9 +67,9 @@ void MakeLevel()
 	game->camera.maxX = 3000;
 	game->camera.maxY = 3000;
 
-	game->levelSprite = game->blit3D->MakeSprite(0, 0, 1900, 2150, "media\\background.png");
-	game->levelWidth = 1900;
-	game->levelHeight = 2150;
+	game->levelSprite = game->blit3D->MakeSprite(0, 0, 1921, 2161, "media\\lvl 1 wall temp2.png");
+	game->levelWidth = 1921;
+	game->levelHeight = 2161;
 
 	//_________GROUND OBJECT_____________
 	//make an entity for the edges
@@ -138,19 +139,19 @@ void MakeLevel()
 	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(700, 1100)); //6
 	game->entityList.push_back(NewWall);
 
-	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(900, 1250)); //7
+	NewWall = MakeNewWall(420.f, 200.f, b2Vec2(900, 1225)); //7
 	game->entityList.push_back(NewWall);
 
 	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(800, 350)); //8
 	game->entityList.push_back(NewWall);
 
-	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(950, 550)); //9
+	NewWall = MakeNewWall(400.f, 280.f, b2Vec2(930, 460)); //9
 	game->entityList.push_back(NewWall);
 
-	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1100, 750)); //10
+	NewWall = MakeNewWall(270.f, 350.f, b2Vec2(1080, 750)); //10
 	game->entityList.push_back(NewWall);
 
-	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1100, 1100)); //11
+	NewWall = MakeNewWall(270.f, 300.f, b2Vec2(1080, 970)); //11
 	game->entityList.push_back(NewWall);
 
 	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1150, 2000)); //12
@@ -175,19 +176,9 @@ void MakeLevel()
 	game->enemyEntityList.push_back(e); //enemies go here
 
 
-	//------edge blocks----------
-
-	//NewWall = MakeNewWall(1900.f, 50.f, b2Vec2(950, 25)); //7
-	//game->entityList.push_back(NewWall);
-
-	//NewWall = MakeNewWall(1900.f, 50.f, b2Vec2(950, 2150)); //7
-	//game->entityList.push_back(NewWall);
-
-	//NewWall = MakeNewWall(50.f, 2150.f, b2Vec2(25, 1075)); //7
-	//game->entityList.push_back(NewWall);
-
-	//NewWall = MakeNewWall(50.f, 2150.f, b2Vec2(1900, 1075)); //7
-	//game->entityList.push_back(NewWall);
+	//level win area
+	LevelWinEntity * lwin = new LevelWinEntity(366, game->levelHeight - 64);
+	game->entityList.push_back(lwin);
 }
 
 //ensures that entities are only added ONCE to the deadEntityList
@@ -222,7 +213,23 @@ void Init()
 	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\guard.png"));
 
 	game->defaultSprite = game->blit3D->MakeSprite(0, 0, 1, 1, "media\\wall.png");
-	
+	game->titleSprite = game->blit3D->MakeSprite(0, 0, 1790, 798, "media\\title page.png");
+
+	game->player1Sprite = game->blit3D->MakeSprite(0, 0, 128, 66, "media\\girl sprite.png");
+	game->player2Sprite = game->blit3D->MakeSprite(0, 0, 71, 66, "media\\boy sprite.png");
+
+	game->guardSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard sprite.png");
+
+	game->mattressSegmentSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\mattress segment.png");
+
+	game->guardAlertSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard exclaimation bubble.png");
+	game->guardQuestionSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard question bubble.png");
+	game->guardGuardNeutralSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard neutral bubble.png");
+
+	game->winScreenSprite = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\winning screen.png");
+	game->loseScreenSprite = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\YouLose.png");
+
+
 	//from here on, we are setting up the Box2D physics world model
 
 	// Define the gravity vector.
@@ -400,13 +407,26 @@ void Update(double seconds)
 							{
 
 
-								//if (A->typeID == ENTITY_MY_SHOT)
-								//{
-								//	//swap A and B
-								//	Entity *C = A;
-								//	A = B;
-								//	B = C;
-								//}
+								if (A->typeID == ENTITYPLAYER)
+								{
+									//swap A and B
+									Entity *C = A;
+									A = B;
+									B = C;
+								}
+
+								if(A->typeID == ENTITYLEVELWIN && B->typeID == ENTITYPLAYER)
+								{
+									//we collided with the win object!
+
+									//set state here
+								}
+								else if(A->typeID == ENTITYENEMY && B->typeID == ENTITYPLAYER)
+								{
+									//we collided with the guard
+
+									//set state here
+								}
 
 
 								
@@ -527,6 +547,7 @@ void Draw(void)
 		fontComputer50->BlitText(100, 300, "Right stick : fire");
 		fontComputer50->BlitText(100, 200, "'A' button : continue");
 		fontComputer50->BlitText(100, 100, "'Back' button or escape on the keyboard : stop the madness");*/
+		game->titleSprite->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
 	}
 		break;
 
