@@ -103,4 +103,9 @@ public:
 	float levelWidth = 3000;
 	float levelHeight = 3000;
 	Sprite *defaultSprite = NULL;
+
+	Sprite *titleSprite = NULL;
+
+	Sprite *player1Sprite;
+	Sprite *player2Sprite;
 };

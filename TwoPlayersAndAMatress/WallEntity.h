@@ -22,7 +22,7 @@ public:
 		sprite->angle = body->GetAngle();
 
 		// Draw the objects
-		sprite->Blit(position.x , position.y, xScale, yScale );
+		//sprite->Blit(position.x , position.y, xScale, yScale );
 	}
 };
 

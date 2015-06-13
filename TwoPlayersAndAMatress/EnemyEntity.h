@@ -33,7 +33,7 @@ private:
 	float runSpeed;
 	b2Vec2 direction;
 	b2Vec2 moveTarget;
-	b2Vec2 lastSeenPlayerLocation;
+	//b2Vec2 lastSeenPlayerLocation;
 
 	// Patrol Path Variables
 	
@@ -55,6 +55,8 @@ private:
 
 public:
 	b2Vec2 currentPosition;
+	b2Vec2 lastSeenPlayerLocation;
+
 	std::vector<b2Vec2> pathList;
 	float timePerFrame;
 	

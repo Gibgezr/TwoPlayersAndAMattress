@@ -17,8 +17,8 @@ PlayerEntity::PlayerEntity()
 
 
 	sprite = game->spriteList[0];
-	player1Sprites.push_back(game->spriteList[0]);
-	player2Sprites.push_back(game->spriteList[0]);
+	player1Sprites.push_back(game->player1Sprite);
+	player2Sprites.push_back(game->player2Sprite);
 	mattressSprite = game->spriteList[1];
 
 	//physics body
@@ -146,12 +146,12 @@ void PlayerEntity::MovePlayer1(float x_input, float y_input)
 		animatingPlayer1 = false;
 	else
 	{
-		anglePlayer1 = vec2deg(movingPlayer1);
-		animatingPlayer1 = true;
+		b2Vec2 moving = movingPlayer1;
+		moving.Normalize();
+		moving.y *= -1;
+		anglePlayer1 = vec2rad(moving);
+		body->SetTransform(body->GetPosition(), anglePlayer1);
 	}
-
-	while(anglePlayer1 > 360.f) anglePlayer1 -= 360.f;
-	while(anglePlayer1 < 0.f) anglePlayer1 += 360.f;
 }
 
 void PlayerEntity::MovePlayer2(float x_input, float y_input)
@@ -163,13 +163,13 @@ void PlayerEntity::MovePlayer2(float x_input, float y_input)
 	if(movingPlayer2.x == 0.f && movingPlayer2.y == 0.f)
 		animatingPlayer2 = false;
 	else
-	{
-		anglePlayer2 = vec2deg(movingPlayer2);
-		animatingPlayer2 = true;
+	{		
+		b2Vec2 moving = movingPlayer2;
+		moving.Normalize();
+		moving.y *= -1;
+		anglePlayer2 = vec2rad(moving);
+		body2->SetTransform(body2->GetPosition(), anglePlayer2);
 	}
-
-	while(anglePlayer2 > 360.f) anglePlayer2 -= 360.f;
-	while(anglePlayer2 < 0.f) anglePlayer2 += 360.f;
 }
 
 void PlayerEntity::Draw()

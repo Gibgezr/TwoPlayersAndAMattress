@@ -13,7 +13,7 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	frameTime = 0.f;
 	pingpongDir = 1;
 	animating = false;
-	x_scale = y_scale = 2.5f;
+	x_scale = y_scale = 1.f;
 
 	guardState = GuardState::Patrol;
 
@@ -25,11 +25,11 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	playerInView = false;
 
 	movementSpeed = 85.f / PTM_RATIO;
-	runSpeed = 150.f / PTM_RATIO;
-	rotationSpeed = 50.f; // In Degrees
+	runSpeed = 250.f / PTM_RATIO;
+	rotationSpeed = 90.f; // In Degrees
 
 	totalRotation = 0.f;
-	direction = b2Vec2(1,0); // <<<<< TODO FIX
+	direction = b2Vec2(1,0);
 	currentPosition = b2Vec2(pixelX/PTM_RATIO, pixelY/PTM_RATIO);
 
 	totalNoticeTime = 0.5f;
@@ -123,7 +123,9 @@ void EnemyEntity::Update(float seconds)
 
 	CheckVision(seconds);
 
-	
+	// Rotate the sprite to face direction
+	float desiredAngle = atan2f(-direction.x, direction.y);
+	body->SetTransform(currentPosition, desiredAngle);
 
 }
 
@@ -132,7 +134,7 @@ void EnemyEntity::Draw()
 	position = body->GetPosition();
 	position = Physics2Pixels(position);
 
-	sprite->angle = 0.f; //fix
+	sprite->angle = body->GetAngle();
 
 	float scaleLeft = x_scale;
 
@@ -176,12 +178,14 @@ void EnemyEntity::Check(float seconds) {
 	}
 
 	moveTarget = lastSeenPlayerLocation;
-	Move(seconds);
+	Run(seconds);
 }
 
 void EnemyEntity::Look(float seconds) {
 	// Rotate around in a circle
 	RotateLook(seconds);
+
+	body->SetLinearVelocity(b2Vec2(0.f, 0.f));
 
 	if(totalRotation > 360) {
 		// Did not see the player return to the patrol
@@ -340,7 +344,7 @@ void EnemyEntity::Run(float seconds) {
 	//transform.position = currentPosition;
 
 	//move us
-	b2Vec2 force = movementSpeed * direction;
+	b2Vec2 force = runSpeed * direction;
 	//body->ApplyForceToCenter(force, true);
 	body->SetLinearVelocity(force);
 	//body->ApplyLinearImpulse(force, body->GetPosition(), true);
