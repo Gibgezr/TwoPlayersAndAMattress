@@ -1,16 +1,17 @@
 #pragma once
 
 #include "Blit3D\Blit3D.h"
-extern Blit3D *blit3D;
+
 
 class Camera2D
-{
+{	
 public:
 	glm::vec3 panOffset; //use this to pan the camera around
 	int panX, panY, panZ; //use these to do whole pixel panning
 	float minX, minY, maxX, maxY, minZ, maxZ; //min and max offsets in each direction
 	glm::vec3 moveDir; //direction to pan in
 	float panSpeed; //how fast we pan in pixels/seconds
+	Blit3D *blit3D;
 
 	Camera2D()
 	{
