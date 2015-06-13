@@ -24,9 +24,12 @@ private:
 	b2Body *body2;
 	b2RevoluteJoint *joint1;
 	b2RevoluteJoint *joint2;
+	b2RevoluteJoint *joint3;
+	b2RevoluteJoint *joint4;
+	b2RevoluteJoint *joint5;
 
 public:
-	b2Body *mattressBody;
+	b2Body *mattressBody[4];
 	float timePerFrame;
 	PlayerEntity();
 	void Update(float seconds);

@@ -563,7 +563,7 @@ void Draw(void)
 	case PLAYING:		
 	{
 		//camera movement
-		b2Vec2 cpos = game->playerEntity1->mattressBody->GetPosition();
+		b2Vec2 cpos = game->playerEntity1->mattressBody[1]->GetPosition();
 		cpos = Physics2Pixels(cpos);
 		game->camera.PanTo(cpos.x - game->blit3D->screenWidth / 2, cpos.y - game->blit3D->screenHeight/2);
 		game->camera.Draw();

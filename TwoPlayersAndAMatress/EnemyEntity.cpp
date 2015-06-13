@@ -85,7 +85,7 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 
 void EnemyEntity::Update(float seconds)
 {
-	playerPosition = game->playerEntity1->mattressBody->GetPosition();
+	playerPosition = game->playerEntity1->mattressBody[1]->GetPosition();
 	currentPosition = body->GetPosition();
 	if(animating)
 	{
