@@ -12,6 +12,7 @@
 
 #include "Game.h"
 #include "Camera.h"
+#include "Wallentity.h"
 
 enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER };
 GameState gameState = START;
@@ -63,9 +64,9 @@ void MakeLevel()
 	game->camera.maxX = 3000;
 	game->camera.maxY = 3000;
 
-	game->levelSprite = game->blit3D->MakeSprite(0, 0, 3000, 3000, "media\\background.png");
-	game->levelWidth = 3000;
-	game->levelHeight = 3000;
+	game->levelSprite = game->blit3D->MakeSprite(0, 0, 1900, 2150, "media\\background.png");
+	game->levelWidth = 1900;
+	game->levelHeight = 2150;
 
 	//_________GROUND OBJECT_____________
 	//make an entity for the edges
@@ -115,6 +116,70 @@ void MakeLevel()
 	edgeEntity->body->CreateFixture(&boxShapeDef);
 
 	game->entityList.push_back(edgeEntity);
+
+	//Make New Wall 
+	WallEntity *NewWall = MakeNewWall(50.f, 350.f, b2Vec2(350, 0)); //1
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(350, 750)); //2
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(0, 1450)); //3
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(500, 1800)); //4
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(500, 950)); //5
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(700, 1100)); //6
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(900, 1250)); //7
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(800, 350)); //8
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(950, 550)); //9
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1100, 750)); //10
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1100, 1100)); //11
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1150, 2000)); //12
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(350.f, 50.f, b2Vec2(1300, 1800)); //13
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1450, 1600)); //14
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(50.f, 350.f, b2Vec2(1450, 1400)); //15
+	game->entityList.push_back(NewWall);
+
+	NewWall = MakeNewWall(500.f, 50.f, b2Vec2(1800, 350)); //16
+	game->entityList.push_back(NewWall);
+
+
+	//------edge blocks----------
+
+	//NewWall = MakeNewWall(1900.f, 50.f, b2Vec2(950, 25)); //7
+	//game->entityList.push_back(NewWall);
+
+	//NewWall = MakeNewWall(1900.f, 50.f, b2Vec2(950, 2150)); //7
+	//game->entityList.push_back(NewWall);
+
+	//NewWall = MakeNewWall(50.f, 2150.f, b2Vec2(25, 1075)); //7
+	//game->entityList.push_back(NewWall);
+
+	//NewWall = MakeNewWall(50.f, 2150.f, b2Vec2(1900, 1075)); //7
+	//game->entityList.push_back(NewWall);
 }
 
 //ensures that entities are only added ONCE to the deadEntityList
@@ -144,6 +209,8 @@ void Init()
 	//load the sprites
 	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\player.png"));
 	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 196, 64, "media\\matress.png"));
+
+	game->defaultSprite = game->blit3D->MakeSprite(0, 0, 1, 1, "media\\wall.png");
 	
 	//from here on, we are setting up the Box2D physics world model
 

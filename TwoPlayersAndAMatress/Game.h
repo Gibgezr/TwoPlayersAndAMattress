@@ -102,4 +102,5 @@ public:
 	Sprite *levelSprite = NULL;
 	float levelWidth = 3000;
 	float levelHeight = 3000;
+	Sprite *defaultSprite = NULL;
 };

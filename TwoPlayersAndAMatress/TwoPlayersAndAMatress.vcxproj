@@ -158,6 +158,7 @@
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PlayerEntity.cpp" />
+    <ClCompile Include="WallEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -165,11 +166,13 @@
     <ClInclude Include="EdgeEntity.h" />
     <ClInclude Include="EnemyEntity.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="fgFSM.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="MyContactListener.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PlayerEntity.h" />
+    <ClInclude Include="WallEntity.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

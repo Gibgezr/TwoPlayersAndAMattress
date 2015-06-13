@@ -26,7 +26,7 @@ PlayerEntity::PlayerEntity()
 
 	//set the position of the center of the body, 
 	//converting from pxel coords to physics measurements
-	bodyDef.position.Set(960 / PTM_RATIO, 540 / PTM_RATIO);
+	bodyDef.position.Set(960 / PTM_RATIO, 250 / PTM_RATIO);
 	bodyDef.type = b2_dynamicBody; //make it a dynamic body i.e. one moved by Box2D
 
 	body = game->world->CreateBody(&bodyDef); //create the body and add it to the world
@@ -51,13 +51,13 @@ PlayerEntity::PlayerEntity()
 	body->SetUserData(this);
 
 	//PLAYER 2
-	bodyDef.position.Set((960+ 194) / PTM_RATIO, 540 / PTM_RATIO);
+	bodyDef.position.Set((960+ 194) / PTM_RATIO, 250 / PTM_RATIO);
 	body2 = game->world->CreateBody(&bodyDef); //create the body and add it to the world
 	body2->CreateFixture(&fixtureDef);
 	body2->SetUserData(this);
 
 	//MATTRESS
-	bodyDef.position.Set((960 + 98) / PTM_RATIO, 540 / PTM_RATIO);
+	bodyDef.position.Set((960 + 98) / PTM_RATIO, 250 / PTM_RATIO);
 	mattressBody = game->world->CreateBody(&bodyDef); //create the body and add it to the world
 
 	// Define a box shape for our dynamic body.
