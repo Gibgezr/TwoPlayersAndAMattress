@@ -11,6 +11,7 @@
 #endif
 
 #include "Game.h"
+#include "Camera.h"
 
 enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER };
 GameState gameState = START;
@@ -59,7 +60,61 @@ void MakeLevel()
 	game->particleList.clear();
 
 	//make the new level
-	
+	game->camera.maxX = 3000;
+	game->camera.maxY = 3000;
+
+	game->levelSprite = game->blit3D->MakeSprite(0, 0, 3000, 3000, "media\\background.png");
+	game->levelWidth = 3000;
+	game->levelHeight = 3000;
+
+	//_________GROUND OBJECT_____________
+	//make an entity for the edges
+	EdgeEntity * edgeEntity = new EdgeEntity();
+	//A bodyDef for the ground
+	b2BodyDef groundBodyDef;
+	// Define the ground body.
+	groundBodyDef.position.Set(0, 0);
+
+	// Call the body factory which allocates memory for the ground body
+	// from a pool and creates the ground box shape (also from a pool).
+	// The body is also added to the world.
+	edgeEntity->body = game->world->CreateBody(&groundBodyDef);
+
+	//an EdgeShape object, for the ground
+	b2EdgeShape groundBox;
+
+	// Define the ground as 1 edge shape at the bottom of the screen.
+	b2FixtureDef boxShapeDef;
+
+	boxShapeDef.shape = &groundBox;
+
+	//collison masking
+	boxShapeDef.filter.categoryBits = CMASK_EDGES;  //this is the ground
+	boxShapeDef.filter.maskBits = CMASK_ENEMY | CMASK_MATTRESS | CMASK_PLAYER;		//it collides wth everything
+
+	//bottom
+	groundBox.Set(b2Vec2(0, 0), b2Vec2(game->levelWidth / PTM_RATIO, 0));
+	//Create the fixture
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+	//add the userdata
+	edgeEntity->body->SetUserData(edgeEntity);
+
+
+	//left
+	groundBox.Set(b2Vec2(0, game->levelHeight / PTM_RATIO), b2Vec2(0, 0));
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+
+	//top
+	groundBox.Set(b2Vec2(0, (game->levelHeight) / PTM_RATIO),
+		b2Vec2(game->levelWidth / PTM_RATIO, (game->levelHeight) / PTM_RATIO));
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+
+	//right
+	groundBox.Set(b2Vec2(game->levelWidth / PTM_RATIO,
+		0), b2Vec2(game->levelWidth / PTM_RATIO, game->levelHeight / PTM_RATIO));
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+
+	game->entityList.push_back(edgeEntity);
 }
 
 //ensures that entities are only added ONCE to the deadEntityList
@@ -85,11 +140,10 @@ void Init()
 
 	//turn off the cursor
 	game->blit3D->ShowCursor(false);
-
-	
 	
 	//load the sprites
-
+	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\player.png"));
+	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 196, 64, "media\\matress.png"));
 	
 	//from here on, we are setting up the Box2D physics world model
 
@@ -101,56 +155,6 @@ void Init()
 	game->world = new b2World(game->gravity);
 	//world->SetGravity(gravity); <-can call this to change gravity at any time
 	game->world->SetAllowSleeping(true); //set true to allow the physics engine to 'sleep" objects that stop moving
-
-	//_________GROUND OBJECT_____________
-	//make an entity for the edges
-	EdgeEntity * edgeEntity = new EdgeEntity();
-	//A bodyDef for the ground
-	b2BodyDef groundBodyDef;
-	// Define the ground body.
-	groundBodyDef.position.Set(0, 0);
-
-	// Call the body factory which allocates memory for the ground body
-	// from a pool and creates the ground box shape (also from a pool).
-	// The body is also added to the world.
-	edgeEntity->body = game->world->CreateBody(&groundBodyDef);
-	
-	//an EdgeShape object, for the ground
-	b2EdgeShape groundBox;
-
-	// Define the ground as 1 edge shape at the bottom of the screen.
-	b2FixtureDef boxShapeDef;
-
-	boxShapeDef.shape = &groundBox;
-
-	//collison masking
-	boxShapeDef.filter.categoryBits = CMASK_EDGES;  //this is the ground
-	boxShapeDef.filter.maskBits = CMASK_MY_SHOT | CMASK_ENEMY_SHOT | CMASK_ENEMY
-		| CMASK_POWERUP | CMASK_HUMAN | CMASK_PLAYER;		//it collides wth everything
-
-	//bottom
-	groundBox.Set(b2Vec2(0, 0), b2Vec2(game->blit3D->screenWidth / PTM_RATIO, 0));
-	//Create the fixture
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-	//add the userdata
-	edgeEntity->body->SetUserData(edgeEntity);
-	
-
-	//left
-	groundBox.Set(b2Vec2(0, game->blit3D->screenHeight / PTM_RATIO), b2Vec2(0, 0));
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-
-	//top
-	groundBox.Set(b2Vec2(0, (game->blit3D->screenHeight - 40) / PTM_RATIO),
-		b2Vec2(game->blit3D->screenWidth / PTM_RATIO, (game->blit3D->screenHeight - 40) / PTM_RATIO));
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-
-	//right
-	groundBox.Set(b2Vec2(game->blit3D->screenWidth / PTM_RATIO,
-		0), b2Vec2(game->blit3D->screenWidth / PTM_RATIO, game->blit3D->screenHeight / PTM_RATIO));
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-
-	game->entityList.push_back(edgeEntity);
 
 	
 	// Create contact listener and use it to collect info about collisions
@@ -183,19 +187,36 @@ void Init()
 	//ERRCHECK(hitDescription->createInstance(&hitInstance));
 	
 	//check for joysticks, stop at first joystick found plugged in
-	for(game->joystickNumber = 1; game->joystickNumber <= 8; ++game->joystickNumber)
+	for(game->joystickNumber1 = 1; game->joystickNumber1 <= 8; ++game->joystickNumber1)
 	{
-		if(game->blit3D->CheckJoystick(game->joystickNumber))
+		if(game->blit3D->CheckJoystick(game->joystickNumber1))
 		{
-			game->foundJoystick = true;
+			game->foundJoystick1 = true;
 			break;
 		}
 	}
 
-	if(game->foundJoystick)
+	if(game->foundJoystick1)
 	{
 		//get the state arrays for this joystick
-		if(!game->blit3D->PollJoystick(game->joystickNumber, game->joystickState)) game->foundJoystick = false;
+		if(!game->blit3D->PollJoystick(game->joystickNumber1, game->joystickState1)) game->foundJoystick1 = false;
+
+		//joystick 2
+		for(game->joystickNumber2 = 1; game->joystickNumber2 <= 8; ++game->joystickNumber2)
+		{
+			if(game->joystickNumber2 == game->joystickNumber1) continue;
+			if(game->blit3D->CheckJoystick(game->joystickNumber2))
+			{
+				game->foundJoystick2 = true;
+				break;
+			}
+		}
+	}
+
+	if(game->foundJoystick2)
+	{
+		//get the state arrays for this joystick
+		if(!game->blit3D->PollJoystick(game->joystickNumber2, game->joystickState2)) game->foundJoystick2 = false;
 	}
 	
 	game->playerEntity1 = new PlayerEntity();
@@ -273,7 +294,8 @@ void Update(double seconds)
 					
 					
 						game->joystickMutex.lock();
-						game->playerEntity1->MovePlayer1(game->joystickPositionAxis1, game->joystickPositionAxis2);
+						game->playerEntity1->MovePlayer1(game->joystick1PositionAxis1, game->joystick1PositionAxis2);
+						game->playerEntity1->MovePlayer2(game->joystick2PositionAxis1, game->joystick2PositionAxis2);
 						game->playerEntity1->Update(game->timeStep);
 						game->joystickMutex.unlock();
 
@@ -442,11 +464,18 @@ void Draw(void)
 	case LEVELREADY:
 	case PLAYING:		
 	{
+		//camera movement
+		b2Vec2 cpos = game->playerEntity1->mattressBody->GetPosition();
+		cpos = Physics2Pixels(cpos);
+		game->camera.PanTo(cpos.x - game->blit3D->screenWidth / 2, cpos.y - game->blit3D->screenHeight/2);
+		game->camera.Draw();
+		game->levelSprite->Blit(game->levelWidth / 2, game->levelHeight / 2);
 		//loop over all entities and draw them
 		for(auto e : game->entityList) e->Draw();
 		for(auto e : game->enemyEntityList) e->Draw();
 		for(auto p : game->particleList) p->Draw();
 		if(game->playerEntity1 != NULL) game->playerEntity1->Draw();
+		game->camera.UnDraw();
 					
 	}	
 	break;
@@ -472,33 +501,29 @@ void DoInput(int key, int scancode, int action, int mods)
 
 void DoJoystick(void)
 {
-	if(game->foundJoystick)
+	if(game->foundJoystick1)
 	{
-		if(game->blit3D->PollJoystick(game->joystickNumber, game->joystickState))
+		if(game->blit3D->PollJoystick(game->joystickNumber1, game->joystickState1))
 		{
 			//joystick at joystickNumber is still plugged in, so we can work with it's states
 			game->joystickMutex.lock();
 			//axis states are between -1.f and 1.f
-			if(game->joystickState.axisCount > 0) game->joystickPositionAxis1 = game->joystickState.axisStates[0];
-			if(game->joystickState.axisCount > 1) game->joystickPositionAxis2 = game->joystickState.axisStates[1];
-			if(game->joystickState.axisCount > 3) game->joystickPositionAxis3 = game->joystickState.axisStates[3];
-			if(game->joystickState.axisCount > 4) game->joystickPositionAxis4 = game->joystickState.axisStates[4];
+			if(game->joystickState1.axisCount > 0) game->joystick1PositionAxis1 = game->joystickState1.axisStates[0];
+			if(game->joystickState1.axisCount > 1) game->joystick1PositionAxis2 = game->joystickState1.axisStates[1];
 			
 			//deadzone
-			if(game->joystickPositionAxis1 < 0.25f && (game->joystickPositionAxis1 > -0.25f)) game->joystickPositionAxis1 = 0.f;
-			if(game->joystickPositionAxis2 < 0.25f && (game->joystickPositionAxis2 > -0.25f)) game->joystickPositionAxis2 = 0.f;
-			if(game->joystickPositionAxis3 < 0.25f && (game->joystickPositionAxis3 > -0.25f)) game->joystickPositionAxis3 = 0.f;
-			if(game->joystickPositionAxis4 < 0.25f && (game->joystickPositionAxis4 > -0.25f)) game->joystickPositionAxis4 = 0.f;
-
-			if(game->joystickState.buttonCount > 6)
+			if(game->joystick1PositionAxis1 < 0.25f && (game->joystick1PositionAxis1 > -0.25f)) game->joystick1PositionAxis1 = 0.f;
+			if(game->joystick1PositionAxis2 < 0.25f && (game->joystick1PositionAxis2 > -0.25f)) game->joystick1PositionAxis2 = 0.f;
+			
+			if(game->joystickState1.buttonCount > 6)
 			{
 				//pressing BACK button will exit the program
-				if(game->joystickState.buttonStates[6] == GLFW_PRESS) game->blit3D->Quit(); //start the shutdown sequence
+				if(game->joystickState1.buttonStates[6] == GLFW_PRESS) game->blit3D->Quit(); //start the shutdown sequence
 			}
-			if(game->joystickState.buttonCount > 0)
+			if(game->joystickState1.buttonCount > 0)
 			{
 				//pressing A button will start the game playing
-				if(game->joystickState.buttonStates[0] == GLFW_PRESS)
+				if(game->joystickState1.buttonStates[0] == GLFW_PRESS)
 				{
 					switch(gameState)
 					{
@@ -529,26 +554,106 @@ void DoJoystick(void)
 			}
 			game->joystickMutex.unlock();
 		}
-		else game->foundJoystick = false;
+		else game->foundJoystick1 = false;
 	}
 	else
 	{
 		//search for a joystick again
 		game->joystickMutex.lock();
 		//check for joysticks, stop at first joystick found plugged in
-		for(game->joystickNumber = 1; game->joystickNumber <= 8; ++game->joystickNumber)
+		for(game->joystickNumber1 = 1; game->joystickNumber1 <= 8; ++game->joystickNumber1)
 		{
-			if(game->blit3D->CheckJoystick(game->joystickNumber))
+			if(game->joystickNumber1 == game->joystickNumber2) continue;
+			if(game->blit3D->CheckJoystick(game->joystickNumber1))
 			{
-				game->foundJoystick = true;
+				game->foundJoystick1 = true;
 				break;
 			}
 		}
 
-		if(game->foundJoystick)
+		if(game->foundJoystick1)
 		{
 			//get the state arrays for this joystick
-			if(!game->blit3D->PollJoystick(game->joystickNumber, game->joystickState)) game->foundJoystick = false;
+			if(!game->blit3D->PollJoystick(game->joystickNumber1, game->joystickState1)) game->foundJoystick1 = false;
+		}
+
+		game->joystickMutex.unlock();
+	}
+
+	if(game->foundJoystick2)
+	{
+		if(game->blit3D->PollJoystick(game->joystickNumber2, game->joystickState2))
+		{
+			//joystick at joystickNumber is still plugged in, so we can work with it's states
+			game->joystickMutex.lock();
+			//axis states are between -1.f and 1.f
+			if(game->joystickState2.axisCount > 0) game->joystick2PositionAxis1 = game->joystickState2.axisStates[0];
+			if(game->joystickState2.axisCount > 1) game->joystick2PositionAxis2 = game->joystickState2.axisStates[1];
+
+			//deadzone
+			if(game->joystick2PositionAxis1 < 0.25f && (game->joystick2PositionAxis1 > -0.25f)) game->joystick2PositionAxis1 = 0.f;
+			if(game->joystick2PositionAxis2 < 0.25f && (game->joystick2PositionAxis2 > -0.25f)) game->joystick2PositionAxis2 = 0.f;
+
+			if(game->joystickState2.buttonCount > 6)
+			{
+				//pressing BACK button will exit the program
+				if(game->joystickState2.buttonStates[6] == GLFW_PRESS) game->blit3D->Quit(); //start the shutdown sequence
+			}
+			if(game->joystickState2.buttonCount > 0)
+			{
+				//pressing A button will start the game playing
+				if(game->joystickState2.buttonStates[0] == GLFW_PRESS)
+				{
+					switch(gameState)
+					{
+					case START:
+						gameState = PLAYING;
+
+						game->level = 1;
+						MakeLevel();
+						break;
+
+					case PLAYING:
+
+						break;
+
+					case LEVELREADY:
+
+						break;
+
+					case DEAD:
+						gameState = START;
+						break;
+
+					case GAMEOVER:
+						gameState = START;
+						break;
+					}
+				}
+			}
+			game->joystickMutex.unlock();
+		}
+		else game->foundJoystick2 = false;
+	}
+	else
+	{
+		//search for a joystick again
+		game->joystickMutex.lock();
+		//check for joysticks, stop at first joystick found plugged in
+		for(game->joystickNumber2 = 1; game->joystickNumber2 <= 8; ++game->joystickNumber2)
+		{
+			if(game->joystickNumber1 == game->joystickNumber2) continue;
+			if(game->blit3D->CheckJoystick(game->joystickNumber2))
+			{
+				game->foundJoystick2 = true;
+				break;
+			}
+		}
+
+		if(game->foundJoystick2)
+		{
+			//get the state arrays for this joystick
+			if(!game->blit3D->PollJoystick(game->joystickNumber2, game->joystickState2)) game->foundJoystick2 = false;
 		}
 
 		game->joystickMutex.unlock();
@@ -561,8 +666,8 @@ int main(int argc, char *argv[])
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	game = new Game();
-	game->blit3D = new Blit3D(Blit3DWindowModel::BORDERLESSFULLSCREEN_1080P, "Two Players & a Matress", 720, 480);
-
+	game->blit3D = new Blit3D(Blit3DWindowModel::DECORATEDWINDOW_1080P, "Two Players & a Mattress", 1600, 900);
+	game->camera.blit3D = game->blit3D;
 	//set our callback funcs
 	game->blit3D->SetInit(Init);
 	game->blit3D->SetDeInit(DeInit);

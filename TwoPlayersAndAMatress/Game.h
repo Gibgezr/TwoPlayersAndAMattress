@@ -7,7 +7,7 @@
 #include "EdgeEntity.h"
 #include "PlayerEntity.h"
 #include "EnemyEntity.h"
-#include "Camera.h"
+
 
 #include "MyContactListener.h" //for handling collisions
 #include "CollisionMask.h"
@@ -16,7 +16,7 @@
 #include <fmod.hpp>
 #include <fmod_errors.h>
 
-
+#include "Camera.h"
 
 class Game
 {
@@ -83,13 +83,23 @@ public:
 
 	//used for joystick
 	std::mutex joystickMutex;
-	B3D::JoystickState joystickState;
-	int joystickNumber;
-	float joystickPositionAxis1 = 0.f;
-	float joystickPositionAxis2 = 0.f;
-	float joystickPositionAxis3 = 0.f;
-	float joystickPositionAxis4 = 0.f;
-	bool foundJoystick = false;
+	B3D::JoystickState joystickState1;
+	B3D::JoystickState joystickState2;
+	int joystickNumber1;
+	int joystickNumber2;
+	float joystick1PositionAxis1 = 0.f;
+	float joystick1PositionAxis2 = 0.f;
+	float joystick2PositionAxis1 = 0.f;
+	float joystick2PositionAxis2 = 0.f;
+
+	bool foundJoystick1 = false;
+	bool foundJoystick2 = false;
 
 	double deadTimer = 0;
+
+	Camera2D camera;
+
+	Sprite *levelSprite = NULL;
+	float levelWidth = 3000;
+	float levelHeight = 3000;
 };
