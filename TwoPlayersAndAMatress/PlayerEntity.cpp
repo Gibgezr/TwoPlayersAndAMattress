@@ -19,7 +19,7 @@ PlayerEntity::PlayerEntity()
 	sprite = game->spriteList[0];
 	player1Sprites.push_back(game->player1Sprite);
 	player2Sprites.push_back(game->player2Sprite);
-	mattressSprite = game->spriteList[1];
+	mattressSprite = game->mattressSegmentSprite;
 
 	//physics body
 	b2BodyDef bodyDef;
@@ -57,47 +57,87 @@ PlayerEntity::PlayerEntity()
 	body2->SetUserData(this);
 
 	//MATTRESS
-	bodyDef.position.Set((960 + 98) / PTM_RATIO, 250 / PTM_RATIO);
-	mattressBody = game->world->CreateBody(&bodyDef); //create the body and add it to the world
 
-	// Define a box shape for our dynamic body.
-	b2PolygonShape mattressShape;
-	//SetAsBox() takes as arguments the half-width and half-height of the box
-	mattressShape.SetAsBox(98 / PTM_RATIO, 32 / PTM_RATIO);
+	for(int i = 0; i < 4; ++i)
+	{
 
-	b2FixtureDef fixtureDef2;
-	fixtureDef2.shape = &playerShape;
-	fixtureDef2.density = 1.0f;
-	fixtureDef2.restitution = 0.1;
-	fixtureDef2.friction = 0.5f;
+		bodyDef.position.Set((960 + 40) / PTM_RATIO, 250 / PTM_RATIO);
+		mattressBody[i] = game->world->CreateBody(&bodyDef); //create the body and add it to the world
 
-	//collison masking
-	fixtureDef2.filter.categoryBits = CMASK_MATTRESS;  //this is a player
-	fixtureDef2.filter.maskBits = CMASK_ENEMY | CMASK_EDGES | CMASK_WALL | CMASK_LEVELWIN;		//it collides wth lotsa shit
+		// Define a box shape for our dynamic body.
+		b2PolygonShape mattressShape;
+		//SetAsBox() takes as arguments the half-width and half-height of the box
+		mattressShape.SetAsBox(40 / PTM_RATIO, 32 / PTM_RATIO);
 
-	mattressBody->CreateFixture(&fixtureDef2);
+		b2FixtureDef fixtureDef2;
+		fixtureDef2.shape = &mattressShape;
+		fixtureDef2.density = 1.0f;
+		fixtureDef2.restitution = 0.1;
+		fixtureDef2.friction = 0.5f;
 
-	//make the userdata point back to this entity
-	mattressBody->SetUserData(this);
+		//collison masking
+		fixtureDef2.filter.categoryBits = CMASK_MATTRESS;  //this is a player
+		fixtureDef2.filter.maskBits = CMASK_ENEMY | CMASK_EDGES | CMASK_WALL | CMASK_LEVELWIN;		//it collides wth lotsa shit
 
+		mattressBody[i]->CreateFixture(&fixtureDef2);
+
+		//make the userdata point back to this entity
+		mattressBody[i]->SetUserData(this);
+	}
 	//joints
 	b2RevoluteJointDef revoluteJointDef;
 	revoluteJointDef.bodyA = body;
-	revoluteJointDef.bodyB = mattressBody;
+	revoluteJointDef.bodyB = mattressBody[0];
 	revoluteJointDef.collideConnected = false;
 
 	revoluteJointDef.localAnchorA.Set(0, 0);
-	revoluteJointDef.localAnchorB.Set(-98/PTM_RATIO, 0);
+	revoluteJointDef.localAnchorB.Set(-34/PTM_RATIO, 0);
 	joint1 = (b2RevoluteJoint*)game->world->CreateJoint(&revoluteJointDef);
 
-	//joint 2
+	//joint 5
 	revoluteJointDef.bodyA = body2;
-	revoluteJointDef.bodyB = mattressBody;
+	revoluteJointDef.bodyB = mattressBody[3];
 	revoluteJointDef.collideConnected = false;
 
 	revoluteJointDef.localAnchorA.Set(0, 0);
-	revoluteJointDef.localAnchorB.Set(98 / PTM_RATIO, 0);
+	revoluteJointDef.localAnchorB.Set(34 / PTM_RATIO, 0);
+	joint5 = (b2RevoluteJoint*)game->world->CreateJoint(&revoluteJointDef);
+
+	//joint 2
+	revoluteJointDef.bodyA = mattressBody[0];
+	revoluteJointDef.bodyB = mattressBody[1];
+	revoluteJointDef.collideConnected = false;
+
+	revoluteJointDef.lowerAngle = -0.25f * b2_pi; // -45 degrees
+	revoluteJointDef.upperAngle = 0.25f * b2_pi; // 45 degrees
+	revoluteJointDef.enableLimit = true;
+	revoluteJointDef.maxMotorTorque = 10000.0f;
+	revoluteJointDef.motorSpeed = 0.0f;
+	revoluteJointDef.enableMotor = true;
+
+	revoluteJointDef.localAnchorA.Set(34 / PTM_RATIO, 0);
+	revoluteJointDef.localAnchorB.Set(-34 / PTM_RATIO, 0);
 	joint2 = (b2RevoluteJoint*)game->world->CreateJoint(&revoluteJointDef);
+
+	//joint 3
+	revoluteJointDef.bodyA = mattressBody[1];
+	revoluteJointDef.bodyB = mattressBody[2];
+	revoluteJointDef.collideConnected = false;
+
+	revoluteJointDef.localAnchorA.Set(34 / PTM_RATIO, 0);
+	revoluteJointDef.localAnchorB.Set(-34 / PTM_RATIO, 0);
+	joint3 = (b2RevoluteJoint*)game->world->CreateJoint(&revoluteJointDef);
+
+	//joint 4
+	revoluteJointDef.bodyA = mattressBody[2];
+	revoluteJointDef.bodyB = mattressBody[3];
+	revoluteJointDef.collideConnected = false;
+
+	revoluteJointDef.localAnchorA.Set(34 / PTM_RATIO, 0);
+	revoluteJointDef.localAnchorB.Set(-34 / PTM_RATIO, 0);
+	joint4 = (b2RevoluteJoint*)game->world->CreateJoint(&revoluteJointDef);
+
+	
 }
 
 void PlayerEntity::Update(float seconds)
@@ -134,6 +174,23 @@ void PlayerEntity::Update(float seconds)
 	force.y = -1 * force.y;
 	body2->SetLinearVelocity(force);
 
+	//mattress
+	float32 gain = 10.5f;
+
+	float32 angleError = joint1->GetJointAngle();	
+	joint1->SetMotorSpeed(-gain * angleError);
+
+	angleError = joint2->GetJointAngle();
+	joint2->SetMotorSpeed(-gain * angleError);
+
+	angleError = joint3->GetJointAngle();
+	joint3->SetMotorSpeed(-gain * angleError);
+
+	angleError = joint4->GetJointAngle();
+	joint4->SetMotorSpeed(-gain * angleError);
+
+	angleError = joint5->GetJointAngle();
+	joint5->SetMotorSpeed(-gain * angleError);
 }
 
 void PlayerEntity::MovePlayer1(float x_input, float y_input)
@@ -175,13 +232,16 @@ void PlayerEntity::MovePlayer2(float x_input, float y_input)
 void PlayerEntity::Draw()
 {
 	//Mattress
-	position = mattressBody->GetPosition();
-	position = Physics2Pixels(position);
+	for(int i = 0; i < 4; ++i)
+	{
+		position = mattressBody[i]->GetPosition();
+		position = Physics2Pixels(position);
 
-	angleMattress = mattressBody->GetAngle();
-	mattressSprite->angle = angleMattress;
+		angleMattress = mattressBody[i]->GetAngle();
+		mattressSprite->angle = angleMattress;
 
-	mattressSprite->Blit(position.x, position.y, x_scale, y_scale);
+		mattressSprite->Blit(position.x, position.y, x_scale, y_scale);
+	}
 
 	//Player 1
 	position = body->GetPosition();
