@@ -12,9 +12,9 @@
 #include "MyContactListener.h" //for handling collisions
 #include "CollisionMask.h"
 #include "Particle.h" //particles, yay!
-#include <fmod_studio.hpp> //for events
-#include <fmod.hpp>
-#include <fmod_errors.h>
+//#include <fmod_studio.hpp> //for events
+//#include <fmod.hpp>
+//#include <fmod_errors.h>
 
 #include "Camera.h"
 
@@ -108,4 +108,16 @@ public:
 
 	Sprite *player1Sprite;
 	Sprite *player2Sprite;
+<<<<<<< HEAD
+=======
+	Sprite *guardSprite;
+	Sprite *mattressSegmentSprite;
+
+	Sprite *guardAlertSprite;
+	Sprite *guardQuestionSprite;
+	Sprite *guardGuardNeutralSprite;
+
+	Sprite *winScreenSprite;
+	Sprite *loseScreenSprite;
+>>>>>>> develomentART
 };

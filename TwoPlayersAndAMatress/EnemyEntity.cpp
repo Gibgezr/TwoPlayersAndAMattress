@@ -48,7 +48,8 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	}
 
 
-	sprite = game->spriteList[2]; //fix this
+	//sprite = game->spriteList[2]; //fix this
+	sprite = game->guardSprite;
 
 	//physics body
 	b2BodyDef bodyDef;
@@ -63,7 +64,7 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	// Define a box shape for our dynamic body.
 	b2CircleShape circleShape;
 	//SetAsBox() takes as arguments the half-width and half-height of the box
-	circleShape.m_radius = 64.f / PTM_RATIO;
+	circleShape.m_radius = 32.f / PTM_RATIO;
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &circleShape;

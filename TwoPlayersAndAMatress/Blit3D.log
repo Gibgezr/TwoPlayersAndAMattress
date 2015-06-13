@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 [2015-06-13 13:09:22][Info]	Context reports FSAA is available with 8samples
 [2015-06-13 13:09:22][Info]	Requesting FSAA with 8samples
 [2015-06-13 13:09:22][Info]	1 monitor detected.
 [2015-06-13 13:09:22][Info]	Renderer: Intel(R) HD Graphics 4600
 [2015-06-13 13:09:22][Info]	OpenGL version supported: 4.3.0 - Build 10.18.10.3907
 [2015-06-13 13:09:36][Info]	Terminated Blit3D
+=======
+[2015-06-13 14:26:55][Info]	Context reports FSAA is available with 8samples
+[2015-06-13 14:26:55][Info]	Requesting FSAA with 8samples
+[2015-06-13 14:26:55][Info]	1 monitor detected.
+[2015-06-13 14:26:55][Info]	Renderer: Intel(R) HD Graphics 4600
+[2015-06-13 14:26:55][Info]	OpenGL version supported: 4.3.0 - Build 10.18.10.3907
+[2015-06-13 14:27:05][Info]	Terminated Blit3D
+>>>>>>> develomentART

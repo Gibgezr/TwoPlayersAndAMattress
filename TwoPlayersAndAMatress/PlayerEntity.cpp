@@ -73,7 +73,7 @@ PlayerEntity::PlayerEntity()
 
 	//collison masking
 	fixtureDef2.filter.categoryBits = CMASK_MATTRESS;  //this is a player
-	fixtureDef2.filter.maskBits = CMASK_ENEMY | CMASK_EDGES | CMASK_WALL;		//it collides wth lotsa shit
+	fixtureDef2.filter.maskBits = CMASK_ENEMY | CMASK_EDGES | CMASK_WALL | CMASK_LEVELWIN;		//it collides wth lotsa shit
 
 	mattressBody->CreateFixture(&fixtureDef2);
 

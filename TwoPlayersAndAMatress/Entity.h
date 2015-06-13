@@ -3,7 +3,7 @@
 #include "Blit3D\Blit3D.h"
 #include "Physics.h"
 
-enum EntityTypes { ENTITYNONE = 0, ENTITYENEMY, ENTITYEDGE, ENTITYPLAYER, ENTITYWALL };
+enum EntityTypes { ENTITYNONE = 0, ENTITYENEMY, ENTITYEDGE, ENTITYPLAYER, ENTITYWALL, ENTITYLEVELWIN };
 //a simple entity class that connects the physics object and the render object
 class Entity
 {
