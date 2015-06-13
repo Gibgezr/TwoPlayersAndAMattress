@@ -11,6 +11,13 @@ enum class GuardState {
 	Chase
 };
 
+enum class GuardNotificationState {
+	None,
+	Noticed,
+	Question,
+	Neutral
+};
+
 class EnemyEntity : public Entity
 {
 private:
@@ -23,12 +30,20 @@ private:
 	float x_scale;
 	float y_scale;
 	float currentSpeed;
+	float notificationTimer;
 	EnemyType enemyType;
 	GuardState guardState;
+	GuardNotificationState notificationState;
 
 	//ai vars
 	// Position and Movement variables
-	
+	Sprite *visionCone;
+	Sprite *notificationSprite;
+	float notificationScale_x;
+	float notificationScale_y;
+	float notificationOffset_x;
+	float notificationOffset_y;
+
 	float movementSpeed;
 	float runSpeed;
 	b2Vec2 direction;

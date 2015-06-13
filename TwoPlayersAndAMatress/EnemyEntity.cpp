@@ -15,18 +15,26 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	animating = false;
 	x_scale = y_scale = 1.f;
 
+	notificationTimer = 1.5f;
+
+	notificationScale_x = 1.f;
+	notificationScale_y = 1.f;
+	notificationOffset_x = 0.f;
+	notificationOffset_y = 75.f;
+
 	guardState = GuardState::Patrol;
+	notificationState = GuardNotificationState::None;
 
 	pathPointCounter = 0;
 	pathList.push_back(b2Vec2(pixelX / PTM_RATIO, pixelY/PTM_RATIO));
 
-	sightRange = 500.f/PTM_RATIO;
+	sightRange = 600.f/PTM_RATIO;
 	inRangeOfPoint = 25.f/PTM_RATIO;
 	playerInView = false;
 
 	movementSpeed = 85.f / PTM_RATIO;
-	runSpeed = 250.f / PTM_RATIO;
-	rotationSpeed = 90.f; // In Degrees
+	runSpeed = 300.f / PTM_RATIO;
+	rotationSpeed = 120.f; // In Degrees
 
 	totalRotation = 0.f;
 	direction = b2Vec2(1,0);
@@ -41,7 +49,6 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	case EnemyType::SHOOTER:
 		//currentSpeed = 50.f;
 		break;
-
 	default:
 		//currentSpeed = 40.f;
 		break;
@@ -50,6 +57,8 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 
 	//sprite = game->spriteList[2]; //fix this
 	sprite = game->guardSprite;
+	notificationSprite = game->guardAlertSprite;
+	visionCone = game->guardVisionCone;
 
 	//physics body
 	b2BodyDef bodyDef;
@@ -85,7 +94,7 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 
 void EnemyEntity::Update(float seconds)
 {
-	playerPosition = game->playerEntity1->mattressBody->GetPosition();
+	playerPosition = game->playerEntity1->mattressBody[1]->GetPosition();
 	currentPosition = body->GetPosition();
 	if(animating)
 	{
@@ -104,8 +113,6 @@ void EnemyEntity::Update(float seconds)
 			}
 		}
 	}
-
-	//sprite = spriteArray[(int)facingDir][currentFrame];
 
 	switch(guardState) {
 	case GuardState::Patrol:
@@ -128,6 +135,25 @@ void EnemyEntity::Update(float seconds)
 	float desiredAngle = atan2f(-direction.x, direction.y);
 	body->SetTransform(currentPosition, desiredAngle);
 
+	switch(notificationState) {
+	case GuardNotificationState::None:
+		break;
+	case GuardNotificationState::Noticed:
+		notificationSprite = game->guardAlertSprite;
+		break;
+	case GuardNotificationState::Question:
+		notificationSprite = game->guardQuestionSprite;
+		break;
+	case GuardNotificationState::Neutral:
+		notificationSprite = game->guardGuardNeutralSprite;
+		// Start a timer and return the state to none once finished 1 second?
+		notificationTimer -= seconds;
+		if (notificationTimer <= 0) {
+			notificationTimer = 2.f;
+			notificationState = GuardNotificationState::None;
+		}
+		break;
+	}
 }
 
 void EnemyEntity::Draw()
@@ -135,12 +161,33 @@ void EnemyEntity::Draw()
 	position = body->GetPosition();
 	position = Physics2Pixels(position);
 
-	sprite->angle = body->GetAngle();
-
+	sprite->angle = body->GetAngle() + (90 * M_PI/180);
+	visionCone->angle = body->GetAngle() + (90 * M_PI / 180);
 	float scaleLeft = x_scale;
 
 	// Draw the objects
 	sprite->Blit(position.x, position.y, scaleLeft, y_scale);
+	visionCone->Blit(position.x, position.y, scaleLeft, y_scale);
+
+	// Draw the Notifications
+	// Wiggle the stuff somehow and raise it up a bit over time
+	switch (notificationState) {
+	case GuardNotificationState::None:
+		// Don't draw anything
+		break;
+	case GuardNotificationState::Noticed:
+		notificationSprite->Blit(position.x + notificationOffset_x, position.y + notificationOffset_y, notificationScale_x, notificationScale_y);
+		// Draw the exclaimation mark
+		break;
+	case GuardNotificationState::Question:
+		notificationSprite->Blit(position.x + notificationOffset_x, position.y + notificationOffset_y, notificationScale_x, notificationScale_y);
+		// Draw the question mark
+		break;
+	case GuardNotificationState::Neutral:
+		notificationSprite->Blit(position.x + notificationOffset_x, position.y + notificationOffset_y, notificationScale_x, notificationScale_y);
+		// Start a timer and return the state to none once finished 1 second?
+		break;
+	}
 }
 
 void EnemyEntity::Patrol(float seconds) {
@@ -178,6 +225,9 @@ void EnemyEntity::Check(float seconds) {
 		totalRotation = 0.f;
 	}
 
+	// Show the question mark
+	notificationState = GuardNotificationState::Noticed;
+
 	moveTarget = lastSeenPlayerLocation;
 	Run(seconds);
 }
@@ -187,9 +237,13 @@ void EnemyEntity::Look(float seconds) {
 	RotateLook(seconds);
 
 	body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+	// Show the question mark
+	notificationState = GuardNotificationState::Question;
 
 	if(totalRotation > 360) {
 		// Did not see the player return to the patrol
+		// Show the neutral bubble for a short amount of time
+		notificationState = GuardNotificationState::Neutral;
 		guardState = GuardState::Patrol;
 	}
 }
@@ -198,6 +252,8 @@ void EnemyEntity::Chase(float seconds) {
 	// Run towards the player target
 	moveTarget = lastSeenPlayerLocation;
 	Run(seconds);
+	// Show the exclaimation mark
+	notificationState = GuardNotificationState::Noticed;
 
 	if((lastSeenPlayerLocation - currentPosition).Length() <= inRangeOfPoint) {
 		guardState = GuardState::Look;

@@ -104,7 +104,9 @@ public:
 	float levelHeight = 3000;
 	Sprite *defaultSprite = NULL;
 
-	Sprite *titleSprite = NULL;
+	Sprite *titleSprite_play = NULL;
+	Sprite *titleSprite_credits = NULL;
+	Sprite *titleSprite_exit = NULL;
 
 	Sprite *player1Sprite;
 	Sprite *player2Sprite;
@@ -116,7 +118,12 @@ public:
 	Sprite *guardQuestionSprite;
 	Sprite *guardGuardNeutralSprite;
 
-	Sprite *winScreenSprite;
-	Sprite *loseScreenSprite;
+	Sprite *guardVisionCone;
+
+	Sprite *winScreenSprite_menu;
+	Sprite *winScreenSprite_play;
+
+	Sprite *loseScreenSprite_menu;
+	Sprite *loseScreenSprite_play;
 
 };

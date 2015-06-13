@@ -17,7 +17,12 @@
 
 AngelcodeFont *afont = NULL;
 
-enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER };
+enum class MainMenuSelect { PLAY, CREDITS, EXIT };
+MainMenuSelect mainMenuSelect = MainMenuSelect::PLAY;
+enum class GameOverMenuSelect { PLAY, MENU };
+GameOverMenuSelect gameOverMenuSelect = GameOverMenuSelect::PLAY;
+
+enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER, VICTORY, DEFEAT, CREDITS };
 GameState gameState = START;
 
 /*void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line)
@@ -175,6 +180,11 @@ void MakeLevel()
 	e->pathList.push_back(b2Vec2(250.f / PTM_RATIO, 400.f / PTM_RATIO));
 	game->enemyEntityList.push_back(e); //enemies go here
 
+	e = new EnemyEntity(150, 1600, EnemyType::GRUNT);
+	//add a path
+	e->pathList.push_back(b2Vec2(600.f / PTM_RATIO, 1600.f / PTM_RATIO));
+	game->enemyEntityList.push_back(e); //enemies go here
+
 
 	//level win area
 	LevelWinEntity * lwin = new LevelWinEntity(366, game->levelHeight - 64);
@@ -213,23 +223,30 @@ void Init()
 	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\guard.png"));
 
 	game->defaultSprite = game->blit3D->MakeSprite(0, 0, 1, 1, "media\\wall.png");
-	game->titleSprite = game->blit3D->MakeSprite(0, 0, 1790, 798, "media\\title page.png");
+	game->titleSprite_play = game->blit3D->MakeSprite(0, 0, 1790, 798, "media\\tp_play_selected.png");
+	game->titleSprite_credits = game->blit3D->MakeSprite(0, 0, 1790, 798, "media\\tp_credits_selected.png");
+	game->titleSprite_exit = game->blit3D->MakeSprite(0, 0, 1790, 798, "media\\tp_exit_selected.png");
 
 	game->player1Sprite = game->blit3D->MakeSprite(0, 0, 128, 66, "media\\girl sprite.png");
 	game->player2Sprite = game->blit3D->MakeSprite(0, 0, 71, 66, "media\\boy sprite.png");
 
 	game->guardSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard sprite.png");
 
-	game->mattressSegmentSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\mattress segment.png");
+	game->mattressSegmentSprite = game->blit3D->MakeSprite(0, 0, 80, 64, "media\\mattress segment.png");
 
 	game->guardAlertSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard exclaimation bubble.png");
 	game->guardQuestionSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard question bubble.png");
 	game->guardGuardNeutralSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard neutral bubble.png");
 
-	game->winScreenSprite = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\winning screen.png");
-	game->loseScreenSprite = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\YouLose.png");
+	game->guardVisionCone = game->blit3D->MakeSprite(0, 0, 998, 300, "media\\guard vision cone.png");
 
+	game->winScreenSprite_menu = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\ws_menu_select.png");
+	game->winScreenSprite_play = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\ws_play_select.png");
 
+	game->loseScreenSprite_menu = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\ls_lose_selected.png");
+	game->loseScreenSprite_play = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\ls_play_selected.png");
+
+	//game->blit3D->Quit();
 	//from here on, we are setting up the Box2D physics world model
 
 	// Define the gravity vector.
@@ -418,13 +435,13 @@ void Update(double seconds)
 								if(A->typeID == ENTITYLEVELWIN && B->typeID == ENTITYPLAYER)
 								{
 									//we collided with the win object!
-
+									gameState = GameState::VICTORY;
 									//set state here
 								}
 								else if(A->typeID == ENTITYENEMY && B->typeID == ENTITYPLAYER)
 								{
 									//we collided with the guard
-
+									gameState = GameState::DEFEAT;
 									//set state here
 								}
 
@@ -506,9 +523,6 @@ void Update(double seconds)
 			gameState = PLAYING;
 		}
 		break;
-	case DEAD:
-		
-		break;	
 	default:
 		//do nada here
 		break;
@@ -547,7 +561,18 @@ void Draw(void)
 		fontComputer50->BlitText(100, 300, "Right stick : fire");
 		fontComputer50->BlitText(100, 200, "'A' button : continue");
 		fontComputer50->BlitText(100, 100, "'Back' button or escape on the keyboard : stop the madness");*/
-		game->titleSprite->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+		//game->titleSprite->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+		switch (mainMenuSelect) {
+		case MainMenuSelect::PLAY:
+			game->titleSprite_play->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		case MainMenuSelect::CREDITS:
+			game->titleSprite_credits->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		case MainMenuSelect::EXIT:
+			game->titleSprite_exit->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		}
 	}
 		break;
 
@@ -563,7 +588,7 @@ void Draw(void)
 	case PLAYING:		
 	{
 		//camera movement
-		b2Vec2 cpos = game->playerEntity1->mattressBody->GetPosition();
+		b2Vec2 cpos = game->playerEntity1->mattressBody[1]->GetPosition();
 		cpos = Physics2Pixels(cpos);
 		game->camera.PanTo(cpos.x - game->blit3D->screenWidth / 2, cpos.y - game->blit3D->screenHeight/2);
 		game->camera.Draw();
@@ -575,7 +600,7 @@ void Draw(void)
 		if(game->playerEntity1 != NULL) game->playerEntity1->Draw();
 		game->camera.UnDraw();
 
-		for(auto g : game->enemyEntityList)
+		/*for(auto g : game->enemyEntityList)
 		{
 			std::string debugtext = "GuardPosition: ";
 			b2Vec2 gvec = g->currentPosition;
@@ -587,7 +612,7 @@ void Draw(void)
 			debugtext += std::to_string(ycoord);
 			afont->BlitText(100, 100, debugtext);
 
-		}
+		}*/
 					
 	}	
 	break;
@@ -600,6 +625,26 @@ void Draw(void)
 		std::string levelCounter = "Level: " + std::to_string(level);
 		fontXeno150->BlitText(50, 400, levelCounter);*/
 	}
+	break;
+	case VICTORY:
+		switch (gameOverMenuSelect) {
+		case GameOverMenuSelect::PLAY:
+			game->winScreenSprite_play->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		case GameOverMenuSelect::MENU:
+			game->winScreenSprite_play->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		}
+		break;
+	case DEFEAT:
+		switch (gameOverMenuSelect) {
+		case GameOverMenuSelect::PLAY:
+			game->loseScreenSprite_play->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		case GameOverMenuSelect::MENU:
+			game->loseScreenSprite_menu->Blit(game->blit3D->screenWidth / 2, game->blit3D->screenHeight / 2);
+			break;
+		}
 		break;
 	}//end switch
 }
@@ -626,6 +671,95 @@ void DoJoystick(void)
 			//deadzone
 			if(game->joystick1PositionAxis1 < 0.25f && (game->joystick1PositionAxis1 > -0.25f)) game->joystick1PositionAxis1 = 0.f;
 			if(game->joystick1PositionAxis2 < 0.25f && (game->joystick1PositionAxis2 > -0.25f)) game->joystick1PositionAxis2 = 0.f;
+
+			/*if (game->joystick1PositionAxis1 > 0.2f) {
+				switch (gameState)
+				{
+				case START:
+
+					switch (mainMenuSelect) {
+					case MainMenuSelect::PLAY:
+						mainMenuSelect = MainMenuSelect::CREDITS;
+						break;
+					case MainMenuSelect::CREDITS:
+						mainMenuSelect = MainMenuSelect::EXIT;
+						break;
+					case MainMenuSelect::EXIT:
+						mainMenuSelect = MainMenuSelect::PLAY;
+						break;
+					}
+					break;
+
+				case PLAYING:
+					break;
+				case VICTORY:
+					switch (gameOverMenuSelect) {
+					case GameOverMenuSelect::PLAY:
+						gameOverMenuSelect = GameOverMenuSelect::MENU;
+						break;
+					case GameOverMenuSelect::MENU:
+						gameOverMenuSelect = GameOverMenuSelect::PLAY;
+						break;
+					}
+					break;
+				case DEFEAT:
+					switch (gameOverMenuSelect) {
+					case GameOverMenuSelect::PLAY:
+						gameOverMenuSelect = GameOverMenuSelect::MENU;
+						break;
+					case GameOverMenuSelect::MENU:
+						gameOverMenuSelect = GameOverMenuSelect::PLAY;
+						break;
+					}
+					break;
+				default:
+					break;
+				}
+			} else if (game->joystick1PositionAxis1 < 0.2f) {
+				switch (gameState)
+				{
+				case START:
+
+					switch (mainMenuSelect) {
+					case MainMenuSelect::PLAY:
+						mainMenuSelect = MainMenuSelect::EXIT;
+						break;
+					case MainMenuSelect::CREDITS:
+						mainMenuSelect = MainMenuSelect::PLAY;
+						break;
+					case MainMenuSelect::EXIT:
+						mainMenuSelect = MainMenuSelect::CREDITS;
+						break;
+					}
+					break;
+
+				case PLAYING:
+					break;
+				case VICTORY:
+					switch (gameOverMenuSelect) {
+					case GameOverMenuSelect::PLAY:
+						gameOverMenuSelect = GameOverMenuSelect::MENU;
+						break;
+					case GameOverMenuSelect::MENU:
+						gameOverMenuSelect = GameOverMenuSelect::PLAY;
+						break;
+					}
+					break;
+				case DEFEAT:
+					switch (gameOverMenuSelect) {
+					case GameOverMenuSelect::PLAY:
+						gameOverMenuSelect = GameOverMenuSelect::MENU;
+						break;
+					case GameOverMenuSelect::MENU:
+						gameOverMenuSelect = GameOverMenuSelect::PLAY;
+						break;
+					}
+					break;
+				default:
+					break;
+				}
+			}*/
+			
 			
 			if(game->joystickState1.buttonCount > 6)
 			{
@@ -640,24 +774,67 @@ void DoJoystick(void)
 					switch(gameState)
 					{
 					case START:
-						gameState = PLAYING;
-						
-						game->level = 1;
-						MakeLevel();						
+
+						switch (mainMenuSelect) {
+						case MainMenuSelect::PLAY:
+							mainMenuSelect = MainMenuSelect::PLAY;
+							gameState = PLAYING;
+
+							game->level = 1;
+							MakeLevel();
+							break;
+						case MainMenuSelect::CREDITS:
+							mainMenuSelect = MainMenuSelect::PLAY;
+							gameState = GameState::CREDITS;
+							break;
+						case MainMenuSelect::EXIT:
+							game->blit3D->Quit();
+							break;
+						}
 						break;
 
 					case PLAYING:
-						
+
 						break;
-					
+
 					case LEVELREADY:
-						
+
 						break;
 
 					case DEAD:
 						gameState = START;
 						break;
 
+					case VICTORY:
+						switch (gameOverMenuSelect) {
+						case GameOverMenuSelect::PLAY:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = PLAYING;
+
+							game->level = 1;
+							MakeLevel();
+							break;
+						case GameOverMenuSelect::MENU:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = GameState::START;
+							break;
+						}
+						break;
+					case DEFEAT:
+						switch (gameOverMenuSelect) {
+						case GameOverMenuSelect::PLAY:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = PLAYING;
+
+							game->level = 1;
+							MakeLevel();
+							break;
+						case GameOverMenuSelect::MENU:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = GameState::START;
+							break;
+						}
+						break;
 					case GAMEOVER:
 						gameState = START;
 						break;
@@ -719,10 +896,23 @@ void DoJoystick(void)
 					switch(gameState)
 					{
 					case START:
-						gameState = PLAYING;
 
-						game->level = 1;
-						MakeLevel();
+						switch (mainMenuSelect) {
+						case MainMenuSelect::PLAY:
+							mainMenuSelect = MainMenuSelect::PLAY;
+							gameState = PLAYING;
+
+							game->level = 1;
+							MakeLevel();
+							break;
+						case MainMenuSelect::CREDITS:
+							mainMenuSelect = MainMenuSelect::PLAY;
+							gameState = GameState::CREDITS;
+							break;
+						case MainMenuSelect::EXIT:
+							game->blit3D->Quit();
+							break;
+						}
 						break;
 
 					case PLAYING:
@@ -737,6 +927,36 @@ void DoJoystick(void)
 						gameState = START;
 						break;
 
+					case VICTORY:
+						switch (gameOverMenuSelect) {
+						case GameOverMenuSelect::PLAY:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = PLAYING;
+
+							game->level = 1;
+							MakeLevel();
+							break;
+						case GameOverMenuSelect::MENU:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = GameState::START;
+							break;
+						}
+						break;
+					case DEFEAT:
+						switch (gameOverMenuSelect) {
+						case GameOverMenuSelect::PLAY:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = PLAYING;
+
+							game->level = 1;
+							MakeLevel();
+							break;
+						case GameOverMenuSelect::MENU:
+							gameOverMenuSelect = GameOverMenuSelect::PLAY;
+							gameState = GameState::START;
+							break;
+						}
+						break;
 					case GAMEOVER:
 						gameState = START;
 						break;
@@ -778,7 +998,7 @@ int main(int argc, char *argv[])
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	game = new Game();
-	game->blit3D = new Blit3D(Blit3DWindowModel::DECORATEDWINDOW_1080P, "Two Players & a Mattress", 1600, 900);
+	game->blit3D = new Blit3D(Blit3DWindowModel::BORDERLESSFULLSCREEN_1080P, "Two Players & a Mattress", 1600, 900);
 	game->camera.blit3D = game->blit3D;
 	//set our callback funcs
 	game->blit3D->SetInit(Init);
