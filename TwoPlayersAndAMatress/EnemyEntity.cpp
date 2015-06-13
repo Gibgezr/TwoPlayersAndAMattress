@@ -14,21 +14,41 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	pingpongDir = 1;
 	animating = false;
 	x_scale = y_scale = 2.5f;
+
+	guardState = GuardState::Patrol;
+
+	pathPointCounter = 0;
+	pathList.push_back(b2Vec2(pixelX / PTM_RATIO, pixelY/PTM_RATIO));
+
+	sightRange = 500.f/PTM_RATIO;
+	inRangeOfPoint = 25.f/PTM_RATIO;
+	playerInView = false;
+
+	movementSpeed = 85.f / PTM_RATIO;
+	runSpeed = 150.f / PTM_RATIO;
+	rotationSpeed = 50.f; // In Degrees
+
+	totalRotation = 0.f;
+	direction = b2Vec2(1,0); // <<<<< TODO FIX
+	currentPosition = b2Vec2(pixelX/PTM_RATIO, pixelY/PTM_RATIO);
+
+	totalNoticeTime = 0.5f;
+	noticeTime = totalNoticeTime;
 		
 	enemyType = type;
 	switch (enemyType)
 	{
 	case EnemyType::SHOOTER:
-		currentSpeed = 50.f;
+		//currentSpeed = 50.f;
 		break;
 
 	default:
-		currentSpeed = 40.f;
+		//currentSpeed = 40.f;
 		break;
 	}
 
 
-	sprite = game->spriteList[0]; //fix this
+	sprite = game->spriteList[2]; //fix this
 
 	//physics body
 	b2BodyDef bodyDef;
@@ -41,12 +61,12 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 	body = game->world->CreateBody(&bodyDef); //create the body and add it to the world
 
 	// Define a box shape for our dynamic body.
-	b2PolygonShape boxShape;
+	b2CircleShape circleShape;
 	//SetAsBox() takes as arguments the half-width and half-height of the box
-	boxShape.SetAsBox(12.0f*x_scale / (2.f*PTM_RATIO), 12.0f*y_scale / (2.f*PTM_RATIO));
+	circleShape.m_radius = 64.f / PTM_RATIO;
 
 	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &boxShape;
+	fixtureDef.shape = &circleShape;
 	fixtureDef.density = 1.0f;
 	fixtureDef.restitution = 0.1;
 	fixtureDef.friction = 0.5f;
@@ -64,6 +84,8 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 
 void EnemyEntity::Update(float seconds)
 {
+	playerPosition = game->playerEntity1->mattressBody->GetPosition();
+	currentPosition = body->GetPosition();
 	if(animating)
 	{
 		//update animation frames as needed
@@ -84,32 +106,24 @@ void EnemyEntity::Update(float seconds)
 
 	//sprite = spriteArray[(int)facingDir][currentFrame];
 
-	//move us
-	b2Vec2 force = currentSpeed * moving;
-	//body->ApplyForceToCenter(force, true);
-	body->SetLinearVelocity(force);
-	//body->ApplyLinearImpulse(force, body->GetPosition(), true);
-
-}
-
-void EnemyEntity::Move(float x_input, float y_input)
-{
-	moving.x = x_input;
-	moving.y = y_input;
-
-	//determine closest facing
-	if(moving.x == 0.f && moving.y == 0.f)
-		animating = false;
-	else
-	{
-		angle = vec2deg(moving);
-		animating = true;
+	switch(guardState) {
+	case GuardState::Patrol:
+		Patrol(seconds);
+		break;
+	case GuardState::Check:
+		Check(seconds);
+		break;
+	case GuardState::Look:
+		Look(seconds);
+		break;
+	case GuardState::Chase:
+		Chase(seconds);
+		break;
 	}
 
-	while(angle > 360.f) angle -= 360.f;
-	while(angle < 0.f) angle += 360.f;
+	CheckVision(seconds);
 
-
+	
 
 }
 
@@ -126,14 +140,227 @@ void EnemyEntity::Draw()
 	sprite->Blit(position.x, position.y, scaleLeft, y_scale);
 }
 
+void EnemyEntity::Patrol(float seconds) {
+	// Calculate Movement Target
+	if((pathList[pathPointCounter] - currentPosition).Length() <= inRangeOfPoint) {
+		if(pathPointCounter >= pathList.size() - 1) {
+			if(isPathReversable) {
+				reversePath = true;
+			}
+			else {
+				pathPointCounter = -1;
+			}
+		}
+		else if(pathPointCounter <= 0) {
+			reversePath = false;
+		}
 
-void EnemyEntity::AI(float seconds)
-{
-	//this AI moves towards the player
-	position = body->GetPosition();
-	b2Vec2 dir = game->playerEntity1->body->GetPosition() - position;
-	dir.Normalize();
-	//randomize the motion?
+		if(reversePath) {
+			pathPointCounter--;
+		}
+		else {
+			pathPointCounter++;
+		}
+	}
 
-	Move(dir.x, dir.y);
+	moveTarget = pathList[pathPointCounter];
+	Move(seconds);
+}
+
+void EnemyEntity::Check(float seconds) {
+	// The location is set in the check vision
+	if((lastSeenPlayerLocation - currentPosition).Length() <= inRangeOfPoint) {
+		guardState = GuardState::Look;
+		noticeTime = 0.f;
+		totalRotation = 0.f;
+	}
+
+	moveTarget = lastSeenPlayerLocation;
+	Move(seconds);
+}
+
+void EnemyEntity::Look(float seconds) {
+	// Rotate around in a circle
+	RotateLook(seconds);
+
+	if(totalRotation > 360) {
+		// Did not see the player return to the patrol
+		guardState = GuardState::Patrol;
+	}
+}
+
+void EnemyEntity::Chase(float seconds) {
+	// Run towards the player target
+	moveTarget = lastSeenPlayerLocation;
+	Run(seconds);
+
+	if((lastSeenPlayerLocation - currentPosition).Length() <= inRangeOfPoint) {
+		guardState = GuardState::Look;
+		noticeTime = 0.f;
+		totalRotation = 0.f;
+	}
+}
+
+void EnemyEntity::CheckVision(float seconds) {
+	b2Vec2 playerDirection = (playerPosition - currentPosition);
+	playerDirection.Normalize();
+
+	// Check Vision Cone
+	if(DotProd2D(playerDirection, direction) > 0.5f) {
+		if((playerPosition - currentPosition).Length() <= sightRange) {
+			//RaycastHit2D hit = Physics2D.Raycast(currentPosition, (playerPosition - currentPosition));
+
+			//set up input
+			b2RayCastInput input;
+			input.p1 = currentPosition;
+			input.p2 = playerPosition;
+			input.maxFraction = 1;
+
+			//check every fixture of every body to find closest
+			float closestFraction = 1; //start with end of line as p2
+			b2Vec2 intersectionNormal(0, 0);
+			b2Fixture* collisionFixture = NULL;
+			for(b2Body* b = game->world->GetBodyList(); b; b = b->GetNext()) {
+				for(b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()) {
+
+					b2RayCastOutput output;
+					if(!f->RayCast(&output, input, 0))
+						continue;
+					if(output.fraction < closestFraction) {
+						closestFraction = output.fraction;
+						intersectionNormal = output.normal;
+						collisionFixture = f;
+					}
+				}
+			}
+
+			if(collisionFixture == NULL)
+			{
+				noticeTime -= seconds;
+
+				if(noticeTime <= 0.f) {
+					noticeTime = 0.f;
+				}
+				return;
+			}
+			//get entity from fixture
+			b2Body *collisionBody = collisionFixture->GetBody();
+			Entity * collisionEntity = (Entity *)collisionBody->GetUserData();
+			if(collisionEntity == NULL)
+			{
+				noticeTime -= seconds;
+
+				if(noticeTime <= 0.f) {
+					noticeTime = 0.f;
+				}
+				return;
+			}
+
+			if(collisionEntity->typeID == ENTITYPLAYER) {
+				// enemy can see the player!
+				noticeTime += seconds;
+				// TODO Show a question mark over the guards head to show that he noticed something
+
+				if(noticeTime > totalNoticeTime) {
+					//Debug.Log ("Guard noticed the player");
+					// TODO Show an exclaimation mark over the guards head to show that he noticed something
+
+					switch(guardState) {
+					case GuardState::Patrol:
+						// TODO Delay and then set the location if correct
+						lastSeenPlayerLocation = playerPosition;
+						guardState = GuardState::Check;
+						noticeTime = 0.f;
+						break;
+					case GuardState::Check:
+						break;
+					case GuardState::Look:
+						lastSeenPlayerLocation = playerPosition;
+						guardState = GuardState::Chase;
+						// set a chase var and start a countdown to do a check if you still see the player
+						break;
+					case GuardState::Chase:
+						// set the player position
+						lastSeenPlayerLocation = playerPosition;
+						noticeTime = totalNoticeTime * 0.5f;
+						break;
+					}
+
+				}
+			}
+			else
+			{
+				noticeTime -= seconds;
+
+				if(noticeTime <= 0.f) {
+					noticeTime = 0.f;
+				}
+				return;
+			}
+		}
+		else
+		{
+			noticeTime -= seconds;
+
+			if(noticeTime <= 0.f) {
+				noticeTime = 0.f;
+			}
+			return;
+		}
+	}
+	else {
+		noticeTime -= seconds;
+
+		if(noticeTime <= 0.f) {
+			noticeTime = 0.f;
+		}
+	}
+}
+
+void EnemyEntity::Move(float seconds) {
+	direction = (moveTarget - currentPosition);
+	direction.Normalize();
+	//currentPosition += direction * movementSpeed * seconds;
+	//transform.position = currentPosition;
+
+	//move us
+	b2Vec2 force = movementSpeed * direction;
+	//body->ApplyForceToCenter(force, true);
+	body->SetLinearVelocity(force);
+	//body->ApplyLinearImpulse(force, body->GetPosition(), true);
+
+}
+
+void EnemyEntity::Run(float seconds) {
+	if((moveTarget - currentPosition).Length() > 0.1f) {
+		direction = (moveTarget - currentPosition);
+	}
+	direction.Normalize();
+	//currentPosition += direction * runSpeed * seconds;
+	//transform.position = currentPosition;
+
+	//move us
+	b2Vec2 force = movementSpeed * direction;
+	//body->ApplyForceToCenter(force, true);
+	body->SetLinearVelocity(force);
+	//body->ApplyLinearImpulse(force, body->GetPosition(), true);
+}
+
+void EnemyEntity::RotateLook(float seconds) {
+	totalRotation += rotationSpeed * seconds;
+	direction = RotateVector2d(direction, rotationSpeed * seconds);
+	// check for a full rotation, if complete and no player as target then return to the path
+}
+
+b2Vec2 EnemyEntity::RotateVector2d(b2Vec2 dir, float degree) {
+	float radian = degree * M_PI / 180;
+	b2Vec2 result;
+	result.x = cos(radian);
+	result.y = sin(radian);
+
+	return b2Vec2(result.x*dir.x - result.y*dir.y, result.y*dir.x + result.x*dir.y);
+}
+
+float EnemyEntity::DotProd2D(b2Vec2 v1, b2Vec2 v2) {
+	return v1.x * v2.x + v1.y * v2.y;
 }

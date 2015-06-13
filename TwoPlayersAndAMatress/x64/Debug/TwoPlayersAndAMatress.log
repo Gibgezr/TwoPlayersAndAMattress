@@ -1,25 +1,5 @@
-﻿Build started 6/13/2015 10:05:33 AM.
-     1>Project "C:\Prog\Games\TwoPlayersAndAMatress\TwoPlayersAndAMatress\TwoPlayersAndAMatress.vcxproj" on node 2 (Build target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt PlayerEntity.cpp
-         PlayerEntity.cpp
-     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(53): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(54): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(55): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>PlayerEntity.cpp(41): warning C4305: '=' : truncation from 'double' to 'float32'
-     1>PlayerEntity.cpp(71): warning C4305: '=' : truncation from 'double' to 'float32'
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.exe" /INCREMENTAL /NOLOGO opengl32.lib Blit3D.lib Box2D.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.lib" /MACHINE:X64 x64\Debug\EnemyEntity.obj
-         x64\Debug\Entity.obj
-         x64\Debug\main.obj
-         x64\Debug\MyContactListener.obj
-         x64\Debug\Particle.obj
-         x64\Debug\Physics.obj
-         x64\Debug\PlayerEntity.obj
-         x64\Debug\WallEntity.obj
-         TwoPlayersAndAMatress.vcxproj -> C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.exe
-     1>Done Building Project "C:\Prog\Games\TwoPlayersAndAMatress\TwoPlayersAndAMatress\TwoPlayersAndAMatress.vcxproj" (Build target(s)).
+﻿Build started 6/13/2015 11:48:02 AM.
 
 Build succeeded.
 
-Time Elapsed 00:00:01.49
+Time Elapsed 00:00:00.01

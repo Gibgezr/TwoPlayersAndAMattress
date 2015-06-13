@@ -14,6 +14,8 @@
 #include "Camera.h"
 #include "Wallentity.h"
 
+AngelcodeFont *afont = NULL;
+
 enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER };
 GameState gameState = START;
 
@@ -166,6 +168,12 @@ void MakeLevel()
 	NewWall = MakeNewWall(500.f, 50.f, b2Vec2(1800, 350)); //16
 	game->entityList.push_back(NewWall);
 
+	//add enemies
+	EnemyEntity *e = new EnemyEntity(250, 160, EnemyType::GRUNT);
+	//add a path
+	e->pathList.push_back(b2Vec2(250.f / PTM_RATIO, 400.f / PTM_RATIO));
+	game->enemyEntityList.push_back(e); //enemies go here
+
 
 	//------edge blocks----------
 
@@ -205,10 +213,13 @@ void Init()
 
 	//turn off the cursor
 	game->blit3D->ShowCursor(false);
+
+	afont = game->blit3D->MakeAngelcodeFontFromBinary32("Computer50_bin.fnt");
 	
 	//load the sprites
 	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\player.png"));
 	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 196, 64, "media\\matress.png"));
+	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\guard.png"));
 
 	game->defaultSprite = game->blit3D->MakeSprite(0, 0, 1, 1, "media\\wall.png");
 	
@@ -291,7 +302,7 @@ void Init()
 
 void DeInit(void)
 {
-	
+	if(afont != NULL) delete afont;
 	//clean up audio
 	//hitInstance->release();
 	
@@ -356,7 +367,6 @@ void Update(double seconds)
 						//update game logic/animation
 						for(auto e : game->entityList) e->Update(game->timeStep);
 						b2Vec2 playerPosition = game->playerEntity1->body->GetPosition();
-						for(auto e : game->enemyEntityList) e->AI(game->timeStep);
 						for(auto e : game->enemyEntityList) e->Update(game->timeStep);
 					
 					
@@ -543,6 +553,20 @@ void Draw(void)
 		for(auto p : game->particleList) p->Draw();
 		if(game->playerEntity1 != NULL) game->playerEntity1->Draw();
 		game->camera.UnDraw();
+
+		for(auto g : game->enemyEntityList)
+		{
+			std::string debugtext = "GuardPosition: ";
+			b2Vec2 gvec = g->currentPosition;
+			gvec = Physics2Pixels(gvec);
+			float xcoord = gvec.x;
+			float ycoord = gvec.y;
+			debugtext += std::to_string(xcoord);
+			debugtext += ", ";
+			debugtext += std::to_string(ycoord);
+			afont->BlitText(100, 100, debugtext);
+
+		}
 					
 	}	
 	break;
