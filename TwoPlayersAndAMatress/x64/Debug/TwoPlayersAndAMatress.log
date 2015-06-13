@@ -1,5 +1,74 @@
-﻿Build started 6/13/2015 2:18:50 PM.
+﻿Build started 6/13/2015 2:26:46 PM.
+     1>Project "C:\Prog\Games\TwoPlayersAndAMatress\TwoPlayersAndAMatress\TwoPlayersAndAMatress.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt EnemyEntity.cpp Entity.cpp LevelWinEntity.cpp main.cpp MyContactListener.cpp Particle.cpp Physics.cpp PlayerEntity.cpp WallEntity.cpp
+         WallEntity.cpp
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(53): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(54): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(55): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+         PlayerEntity.cpp
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(53): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(54): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(55): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>PlayerEntity.cpp(41): warning C4305: '=' : truncation from 'double' to 'float32'
+     1>PlayerEntity.cpp(71): warning C4305: '=' : truncation from 'double' to 'float32'
+         Physics.cpp
+     1>Physics.cpp(12): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Physics.cpp(22): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>Physics.cpp(27): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>Physics.cpp(32): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+         Particle.cpp
+     1>Particle.cpp(73): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Particle.cpp(74): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+         MyContactListener.cpp
+         main.cpp
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(53): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(54): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(55): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>main.cpp(52): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>main.cpp(250): warning C4101: 'version' : unreferenced local variable
+     1>main.cpp(359): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>main.cpp(387): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>main.cpp(493): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+         LevelWinEntity.cpp
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(53): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(54): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(55): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>LevelWinEntity.cpp(23): warning C4305: '=' : truncation from 'double' to 'float32'
+         Entity.cpp
+         EnemyEntity.cpp
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(53): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(54): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\prog\games\twoplayersandamatress\twoplayersandamatress\Camera.h(55): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>EnemyEntity.cpp(72): warning C4305: '=' : truncation from 'double' to 'float32'
+     1>EnemyEntity.cpp(361): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.exe" /INCREMENTAL /NOLOGO opengl32.lib Blit3D.lib Box2D.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.lib" /MACHINE:X64 x64\Debug\EnemyEntity.obj
+         x64\Debug\Entity.obj
+         x64\Debug\LevelWinEntity.obj
+         x64\Debug\main.obj
+         x64\Debug\MyContactListener.obj
+         x64\Debug\Particle.obj
+         x64\Debug\Physics.obj
+         x64\Debug\PlayerEntity.obj
+         x64\Debug\WallEntity.obj
+     1>LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+     1>LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+     1>Blit3D.lib(AngelcodeFont.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(AngelcodeFont.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(BFont.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(BFont.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(Blit3D.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(Blit3D.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(ByteSwap.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(ByteSwap.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(glslprogram.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(glslprogram.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(Logger.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(Logger.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(RenderBuffer.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(RenderBuffer.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(ShaderManager.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(ShaderManager.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(Sprite.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(Sprite.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(TextureManager.obj) : warning LNK4099: PDB '120.pdb' was not found with 'Blit3D.lib(TextureManager.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\120.pdb'; linking object as if no debug info
+     1>Blit3D.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'Blit3D.lib(glew.obj)' or at 'C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\vc120.pdb'; linking object as if no debug info
+         TwoPlayersAndAMatress.vcxproj -> C:\Prog\Games\TwoPlayersAndAMatress\x64\Debug\TwoPlayersAndAMatress.exe
+     1>Done Building Project "C:\Prog\Games\TwoPlayersAndAMatress\TwoPlayersAndAMatress\TwoPlayersAndAMatress.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.01
+Time Elapsed 00:00:08.49
