@@ -130,6 +130,10 @@ void PlayerEntity::Update(float seconds)
 	body->SetLinearVelocity(force);
 	//body->ApplyLinearImpulse(force, body->GetPosition(), true);
 
+	force = currentSpeed * movingPlayer2;
+	force.y = -1 * force.y;
+	body2->SetLinearVelocity(force);
+
 }
 
 void PlayerEntity::MovePlayer1(float x_input, float y_input)
