@@ -7,7 +7,7 @@
 #include "EdgeEntity.h"
 #include "PlayerEntity.h"
 #include "EnemyEntity.h"
-#include "Camera.h"
+
 
 #include "MyContactListener.h" //for handling collisions
 #include "CollisionMask.h"
@@ -16,7 +16,7 @@
 #include <fmod.hpp>
 #include <fmod_errors.h>
 
-
+#include "Camera.h"
 
 class Game
 {
@@ -96,4 +96,10 @@ public:
 	bool foundJoystick2 = false;
 
 	double deadTimer = 0;
+
+	Camera2D camera;
+
+	Sprite *levelSprite = NULL;
+	float levelWidth = 3000;
+	float levelHeight = 3000;
 };

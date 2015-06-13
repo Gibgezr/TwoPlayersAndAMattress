@@ -174,6 +174,16 @@ void PlayerEntity::MovePlayer2(float x_input, float y_input)
 
 void PlayerEntity::Draw()
 {
+	//Mattress
+	position = mattressBody->GetPosition();
+	position = Physics2Pixels(position);
+
+	angleMattress = mattressBody->GetAngle();
+	mattressSprite->angle = angleMattress;
+
+	mattressSprite->Blit(position.x, position.y, x_scale, y_scale);
+
+	//Player 1
 	position = body->GetPosition();
 	position = Physics2Pixels(position);
 
@@ -183,6 +193,7 @@ void PlayerEntity::Draw()
 	// Draw the objects
 	player1Sprites[0]->Blit(position.x, position.y, x_scale, y_scale);
 
+	//Player 2
 	position = body2->GetPosition();
 	position = Physics2Pixels(position);
 
@@ -192,14 +203,6 @@ void PlayerEntity::Draw()
 	// Draw the objects
 	player2Sprites[0]->Blit(position.x, position.y, x_scale, y_scale);
 
-	//Mattress
-	position = mattressBody->GetPosition();
-	position = Physics2Pixels(position);
-
-	angleMattress = mattressBody->GetAngle();
-	mattressSprite->angle = angleMattress;
-
-	// Draw the objects
-	mattressSprite->Blit(position.x, position.y, x_scale, y_scale);
+	
 	
 }

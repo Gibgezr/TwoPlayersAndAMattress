@@ -11,6 +11,7 @@
 #endif
 
 #include "Game.h"
+#include "Camera.h"
 
 enum GameState { START, PLAYING, LOADLEVEL, LEVELREADY, DEAD, RESTART, RESTART2, GAMEOVER };
 GameState gameState = START;
@@ -59,7 +60,61 @@ void MakeLevel()
 	game->particleList.clear();
 
 	//make the new level
-	
+	game->camera.maxX = 3000;
+	game->camera.maxY = 3000;
+
+	game->levelSprite = game->blit3D->MakeSprite(0, 0, 3000, 3000, "media\\background.png");
+	game->levelWidth = 3000;
+	game->levelHeight = 3000;
+
+	//_________GROUND OBJECT_____________
+	//make an entity for the edges
+	EdgeEntity * edgeEntity = new EdgeEntity();
+	//A bodyDef for the ground
+	b2BodyDef groundBodyDef;
+	// Define the ground body.
+	groundBodyDef.position.Set(0, 0);
+
+	// Call the body factory which allocates memory for the ground body
+	// from a pool and creates the ground box shape (also from a pool).
+	// The body is also added to the world.
+	edgeEntity->body = game->world->CreateBody(&groundBodyDef);
+
+	//an EdgeShape object, for the ground
+	b2EdgeShape groundBox;
+
+	// Define the ground as 1 edge shape at the bottom of the screen.
+	b2FixtureDef boxShapeDef;
+
+	boxShapeDef.shape = &groundBox;
+
+	//collison masking
+	boxShapeDef.filter.categoryBits = CMASK_EDGES;  //this is the ground
+	boxShapeDef.filter.maskBits = CMASK_ENEMY | CMASK_MATTRESS | CMASK_PLAYER;		//it collides wth everything
+
+	//bottom
+	groundBox.Set(b2Vec2(0, 0), b2Vec2(game->levelWidth / PTM_RATIO, 0));
+	//Create the fixture
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+	//add the userdata
+	edgeEntity->body->SetUserData(edgeEntity);
+
+
+	//left
+	groundBox.Set(b2Vec2(0, game->levelHeight / PTM_RATIO), b2Vec2(0, 0));
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+
+	//top
+	groundBox.Set(b2Vec2(0, (game->levelHeight) / PTM_RATIO),
+		b2Vec2(game->levelWidth / PTM_RATIO, (game->levelHeight) / PTM_RATIO));
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+
+	//right
+	groundBox.Set(b2Vec2(game->levelWidth / PTM_RATIO,
+		0), b2Vec2(game->levelWidth / PTM_RATIO, game->levelHeight / PTM_RATIO));
+	edgeEntity->body->CreateFixture(&boxShapeDef);
+
+	game->entityList.push_back(edgeEntity);
 }
 
 //ensures that entities are only added ONCE to the deadEntityList
@@ -100,55 +155,6 @@ void Init()
 	game->world = new b2World(game->gravity);
 	//world->SetGravity(gravity); <-can call this to change gravity at any time
 	game->world->SetAllowSleeping(true); //set true to allow the physics engine to 'sleep" objects that stop moving
-
-	//_________GROUND OBJECT_____________
-	//make an entity for the edges
-	EdgeEntity * edgeEntity = new EdgeEntity();
-	//A bodyDef for the ground
-	b2BodyDef groundBodyDef;
-	// Define the ground body.
-	groundBodyDef.position.Set(0, 0);
-
-	// Call the body factory which allocates memory for the ground body
-	// from a pool and creates the ground box shape (also from a pool).
-	// The body is also added to the world.
-	edgeEntity->body = game->world->CreateBody(&groundBodyDef);
-	
-	//an EdgeShape object, for the ground
-	b2EdgeShape groundBox;
-
-	// Define the ground as 1 edge shape at the bottom of the screen.
-	b2FixtureDef boxShapeDef;
-
-	boxShapeDef.shape = &groundBox;
-
-	//collison masking
-	boxShapeDef.filter.categoryBits = CMASK_EDGES;  //this is the ground
-	boxShapeDef.filter.maskBits = CMASK_ENEMY | CMASK_MATTRESS | CMASK_PLAYER;		//it collides wth everything
-
-	//bottom
-	groundBox.Set(b2Vec2(0, 0), b2Vec2(game->blit3D->screenWidth / PTM_RATIO, 0));
-	//Create the fixture
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-	//add the userdata
-	edgeEntity->body->SetUserData(edgeEntity);
-	
-
-	//left
-	groundBox.Set(b2Vec2(0, game->blit3D->screenHeight / PTM_RATIO), b2Vec2(0, 0));
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-
-	//top
-	groundBox.Set(b2Vec2(0, (game->blit3D->screenHeight - 40) / PTM_RATIO),
-		b2Vec2(game->blit3D->screenWidth / PTM_RATIO, (game->blit3D->screenHeight - 40) / PTM_RATIO));
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-
-	//right
-	groundBox.Set(b2Vec2(game->blit3D->screenWidth / PTM_RATIO,
-		0), b2Vec2(game->blit3D->screenWidth / PTM_RATIO, game->blit3D->screenHeight / PTM_RATIO));
-	edgeEntity->body->CreateFixture(&boxShapeDef);
-
-	game->entityList.push_back(edgeEntity);
 
 	
 	// Create contact listener and use it to collect info about collisions
@@ -458,11 +464,18 @@ void Draw(void)
 	case LEVELREADY:
 	case PLAYING:		
 	{
+		//camera movement
+		b2Vec2 cpos = game->playerEntity1->mattressBody->GetPosition();
+		cpos = Physics2Pixels(cpos);
+		game->camera.PanTo(cpos.x - game->blit3D->screenWidth / 2, cpos.y - game->blit3D->screenHeight/2);
+		game->camera.Draw();
+		game->levelSprite->Blit(game->levelWidth / 2, game->levelHeight / 2);
 		//loop over all entities and draw them
 		for(auto e : game->entityList) e->Draw();
 		for(auto e : game->enemyEntityList) e->Draw();
 		for(auto p : game->particleList) p->Draw();
 		if(game->playerEntity1 != NULL) game->playerEntity1->Draw();
+		game->camera.UnDraw();
 					
 	}	
 	break;
@@ -654,7 +667,7 @@ int main(int argc, char *argv[])
 
 	game = new Game();
 	game->blit3D = new Blit3D(Blit3DWindowModel::DECORATEDWINDOW_1080P, "Two Players & a Mattress", 1600, 900);
-
+	game->camera.blit3D = game->blit3D;
 	//set our callback funcs
 	game->blit3D->SetInit(Init);
 	game->blit3D->SetDeInit(DeInit);

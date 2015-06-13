@@ -22,11 +22,11 @@ private:
 	std::vector<Sprite *>player2Sprites;
 	Sprite *mattressSprite;
 	b2Body *body2;
-	b2Body *mattressBody;
 	b2RevoluteJoint *joint1;
 	b2RevoluteJoint *joint2;
 
 public:
+	b2Body *mattressBody;
 	float timePerFrame;
 	PlayerEntity();
 	void Update(float seconds);
