@@ -53,7 +53,7 @@ EnemyEntity::EnemyEntity(float pixelX, float pixelY, EnemyType type)
 
 	//collison masking
 	fixtureDef.filter.categoryBits = CMASK_ENEMY ;  //this is an enemy
-	fixtureDef.filter.maskBits = CMASK_MY_SHOT | CMASK_PLAYER | CMASK_EDGES | CMASK_POWERUP; //it collides wth a few things
+	fixtureDef.filter.maskBits = CMASK_PLAYER | CMASK_EDGES | CMASK_MATTRESS | CMASK_WALL; //it collides wth a few things
 
 	body->CreateFixture(&fixtureDef);
 
