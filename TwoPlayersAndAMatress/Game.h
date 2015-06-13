@@ -108,8 +108,7 @@ public:
 
 	Sprite *player1Sprite;
 	Sprite *player2Sprite;
-<<<<<<< HEAD
-=======
+
 	Sprite *guardSprite;
 	Sprite *mattressSegmentSprite;
 
@@ -119,5 +118,5 @@ public:
 
 	Sprite *winScreenSprite;
 	Sprite *loseScreenSprite;
->>>>>>> develomentART
+
 };

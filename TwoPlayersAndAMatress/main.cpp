@@ -217,9 +217,6 @@ void Init()
 
 	game->player1Sprite = game->blit3D->MakeSprite(0, 0, 128, 66, "media\\girl sprite.png");
 	game->player2Sprite = game->blit3D->MakeSprite(0, 0, 71, 66, "media\\boy sprite.png");
-<<<<<<< HEAD
-	
-=======
 
 	game->guardSprite = game->blit3D->MakeSprite(0, 0, 67, 66, "media\\guard sprite.png");
 
@@ -233,7 +230,6 @@ void Init()
 	game->loseScreenSprite = game->blit3D->MakeSprite(0, 0, 1920, 1080, "media\\YouLose.png");
 
 
->>>>>>> develomentART
 	//from here on, we are setting up the Box2D physics world model
 
 	// Define the gravity vector.
