@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 [2015-06-13 16:15:18][Info]	Creating TextureManager with 31 maximum bound textures
 [2015-06-13 16:15:22][Info]	TextureManager destroyed
+=======
+[2015-06-13 15:25:02][Info]	Creating TextureManager with 31 maximum bound textures
+[2015-06-13 15:26:06][Info]	TextureManager destroyed
+>>>>>>> f4bcc93420145d696630d863d7458e6b20c3f871
