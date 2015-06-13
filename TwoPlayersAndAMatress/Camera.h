@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Blit3D.h"
+#include "Blit3D\Blit3D.h"
 extern Blit3D *blit3D;
 
 class Camera2D

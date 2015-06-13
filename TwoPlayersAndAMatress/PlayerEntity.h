@@ -9,6 +9,7 @@ private:
 	b2Vec2 movingPlayer2;
 	float anglePlayer1;
 	float anglePlayer2;
+	float angleMattress;
 	int currentFrame;	
 	float frameTime;
 	int pingpongDir;

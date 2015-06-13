@@ -85,11 +85,10 @@ void Init()
 
 	//turn off the cursor
 	game->blit3D->ShowCursor(false);
-
-	
 	
 	//load the sprites
-
+	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 64, 64, "media\\player.png"));
+	game->spriteList.push_back(game->blit3D->MakeSprite(0, 0, 196, 64, "media\\matress.png"));
 	
 	//from here on, we are setting up the Box2D physics world model
 
@@ -125,8 +124,7 @@ void Init()
 
 	//collison masking
 	boxShapeDef.filter.categoryBits = CMASK_EDGES;  //this is the ground
-	boxShapeDef.filter.maskBits = CMASK_MY_SHOT | CMASK_ENEMY_SHOT | CMASK_ENEMY
-		| CMASK_POWERUP | CMASK_HUMAN | CMASK_PLAYER;		//it collides wth everything
+	boxShapeDef.filter.maskBits = CMASK_ENEMY | CMASK_MATTRESS | CMASK_PLAYER;		//it collides wth everything
 
 	//bottom
 	groundBox.Set(b2Vec2(0, 0), b2Vec2(game->blit3D->screenWidth / PTM_RATIO, 0));
@@ -561,7 +559,7 @@ int main(int argc, char *argv[])
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	game = new Game();
-	game->blit3D = new Blit3D(Blit3DWindowModel::BORDERLESSFULLSCREEN_1080P, "Two Players & a Matress", 720, 480);
+	game->blit3D = new Blit3D(Blit3DWindowModel::DECORATEDWINDOW_1080P, "Two Players & a Matress", 1600, 900);
 
 	//set our callback funcs
 	game->blit3D->SetInit(Init);
